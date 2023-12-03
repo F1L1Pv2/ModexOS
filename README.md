@@ -1,2 +1,2 @@
-# bios-HTC
+./# bios-HTC
  cring real mode bios os

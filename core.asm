@@ -151,5 +151,5 @@ new_line:
     ret
 
 
-command: times 32 db 0
+command: times 512 db 0
 command_len: equ $ - command

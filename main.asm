@@ -86,16 +86,16 @@ say:
 
     ret
 
+%define VER_DATE "2020-2023"
+%define NEW_LINE 10,13
+%define VERSION "BIOS-HTC - Test 1_00",NEW_LINE
 
+welcome_msg: db VERSION,"Corporation (C) ",VER_DATE,NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE,NEW_LINE,0
 
-%define VERSION "BIOS-HTC - Test 1_00",10,13
+unknown_command_msg: db "The command does not exist. Type help a for a list of commands", NEW_LINE,0
 
-welcome_msg: db VERSION,"Corporation (C) 2020-2023",10,13,10,13,"Type help a for a list of commands.",10,13,10,13,0
-
-unknown_command_msg: db "The command does not exist. Type help a for a list of commands", 10,13,0
-
-help_command_msg: db "1. help - Help.",10,13,"4. cls - Clear text.",10,13,"7. ver - System vesrsion.",10,13,"8. say - Comment.",10,13,"8. ping - pong!.",10,13,0
-version_command_msg: db VERSION,"Corporation (C) 2020",10,13,0
+help_command_msg: db "1. help - Help.",NEW_LINE,"4. cls - Clear text.",NEW_LINE,"7. ver - System vesrsion.",NEW_LINE,"8. say - Comment.",NEW_LINE,"8. ping - pong!.",NEW_LINE,0
+version_command_msg: db VERSION,"Corporation (C) ",VER_DATE,NEW_LINE,0
 ping_command_msg: db "pong!",0
 
 command_msg: db "> ",0
