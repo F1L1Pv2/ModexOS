@@ -1,3 +1,5 @@
+%define VIDEO_MODE 3
+
 clear_buffer:
     ; input buffer in bx
     ; buffer len in dx
@@ -138,7 +140,7 @@ write_char:
 
 cls:
     mov ah, 0
-    mov al, 3
+    mov al, VIDEO_MODE
     int 0x10
     ret
 
@@ -151,5 +153,5 @@ new_line:
     ret
 
 
-command: times 512 db 0
+command: times 512*2 db 0
 command_len: equ $ - command

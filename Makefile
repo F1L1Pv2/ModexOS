@@ -2,7 +2,13 @@ ASM=nasm
 SRC_DIR=src
 BUILD_DIR=build
 
-.PHONY: all bios-htc kernel bootloader clean always
+.PHONY: all bios-htc kernel bootloader clean always iso
+
+
+iso: $(BUILD_DIR)/bios-htc.iso
+
+$(BUILD_DIR)/bios-htc.iso: always
+	genisoimage -quiet -V 'HTC' -input-charset iso8859-1 -o $(BUILD_DIR)/bios-htc.iso -b bios-htc.img     -hide bios-htc.img $(BUILD_DIR)
 
 bios-htc: $(BUILD_DIR)/bios-htc.img
 
