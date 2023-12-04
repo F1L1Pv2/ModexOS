@@ -104,3 +104,7 @@ help_command: db "help", 0
 ver_command: db "ver", 0
 say_command: db "say", 0
 ping_command: db "ping", 0
+
+%include "core.asm"
+
+times 512*4 - ($-$$) db 0
