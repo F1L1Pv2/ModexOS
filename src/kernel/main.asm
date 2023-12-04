@@ -96,6 +96,7 @@ say:
     call read_buffer
 
     call new_line
+    call new_line
 
     ret
 
@@ -103,17 +104,17 @@ say:
 %define NEW_LINE 10,13
 %define VERSION "System HTC build-04122023-2205 16-bits",NEW_LINE
 
-welcome_msg: db "Made by: F1L1P (modified by Rilax)",NEW_LINE,NEW_LINE,VERSION,"Corporation (C) ",DATA,NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE, 0
+welcome_msg: db "Made by: F1L1P (modified by Rilax)",NEW_LINE,NEW_LINE,VERSION,"Corporation (C) ",DATA,NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE,NEW_LINE, 0
 
-unknown_command_msg: db "The command does not exist. Type help a for a list of commands",NEW_LINE, 0
+unknown_command_msg: db "The command does not exist. Type help a for a list of commands", NEW_LINE, NEW_LINE, 0
 
 help_command_msg: 
-db NEW_LINE,NEW_LINE,"1. help - Help.",NEW_LINE,"2. cls - Clear text.",NEW_LINE,"3. ver - System vesrsion.",NEW_LINE,"4. say - Comment.",NEW_LINE,"5. ping - pong!",NEW_LINE,"6. motd - Welcome text!",NEW_LINE,0
+db NEW_LINE,"1. help - Help.",NEW_LINE,"2. cls - Clear text.",NEW_LINE,"3. ver - System vesrsion.",NEW_LINE,"4. say - Comment.",NEW_LINE,"5. ping - pong!",NEW_LINE,"6. motd - Welcome text!",NEW_LINE,NEW_LINE, 0
 
-version_command_msg: db VERSION,"Corporation (C) ",DATA,NEW_LINE,0
-ping_command_msg: db "pong!", 0
+version_command_msg: db VERSION,"Corporation (C) ",DATA,NEW_LINE,NEW_LINE,0
+ping_command_msg: db "pong!",NEW_LINE, 0
 
-command_msg: db NEW_LINE,"> ", 0
+command_msg: db "> ", 0
 cls_command: db "cls", 0
 help_command: db "help", 0
 ver_command: db "ver", 0
