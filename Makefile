@@ -7,7 +7,7 @@ BUILD_DIR=build
 
 iso: $(BUILD_DIR)/bios-htc.iso
 
-$(BUILD_DIR)/bios-htc.iso: always
+$(BUILD_DIR)/bios-htc.iso: bios-htc
 	genisoimage -quiet -V 'HTC' -input-charset iso8859-1 -o $(BUILD_DIR)/bios-htc.iso -b bios-htc.img     -hide bios-htc.img $(BUILD_DIR)
 
 bios-htc: $(BUILD_DIR)/bios-htc.img
