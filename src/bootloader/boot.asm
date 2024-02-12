@@ -6,7 +6,7 @@ bits 16
 
 
 ;
-; FAT12 header
+; FAT12 header ; TODO: Tu bedzie FAT16
 ; 
 jmp short start
 nop
@@ -30,7 +30,7 @@ ebr_drive_number:           db 0                    ; 0x00 floppy, 0x80 hdd, use
                             db 0                    ; reserved
 ebr_signature:              db 29h
 ebr_volume_id:              db 69h, 42h, 06h, 66h   ; serial number, value doesn't matter
-ebr_volume_label:           db 'BALLER OS  '        ; 11 bytes, padded with spaces
+ebr_volume_label:           db 'BIOS-HTC OS'        ; 11 bytes, padded with spaces
 ebr_system_id:              db 'FAT12   '           ; 8 bytes
 
 ;
@@ -235,8 +235,8 @@ wait_key_and_reboot:
 puts:
     ; save registers we will modify
     push si
-    push ax
     push bx
+    push ax
 
 .loop:
     lodsb               ; loads next character in al
@@ -250,8 +250,8 @@ puts:
     jmp .loop
 
 .done:
-    pop bx
     pop ax
+    pop bx
     pop si    
     ret
 

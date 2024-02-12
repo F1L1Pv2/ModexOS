@@ -2,6 +2,12 @@ call cls
 
 mov bx, welcome_msg
 call write_buffer
+mov al, ch
+call print_bcd
+mov al, cl
+call print_bcd
+mov bx, welcome_msg2
+call write_buffer
 
 main:
     
@@ -18,9 +24,19 @@ main:
 
     jmp main
 
+welcome_msg_fn:
+    mov bx, welcome_msg
+    call write_buffer
+    mov al, ch
+    call print_bcd
+    mov al, cl
+    call print_bcd
+    mov bx, welcome_msg2
+    call write_buffer
+
 choose_command:
+
     mov bx, command
-    
     mov dx, cls_command
     call cmp_str
     je .cls_cmd
@@ -49,14 +65,6 @@ choose_command:
     call cmp_str
     je .time_cmd
 
-    mov dx, ver_command2
-    call cmp_str
-    je .ver2_cmd
-
-    mov dx, test_command
-    call cmp_str
-    je .test_command
-
     cmp byte [bx], 0
     je .nothing
 
@@ -76,6 +84,20 @@ choose_command:
     .ver_cmd:
     mov bx, version_command_msg
     call write_buffer
+
+    mov al, ch
+    call print_bcd
+    mov al, cl
+    call print_bcd
+
+    mov ah, 0x0e
+    mov al, 'r'
+    int 0x10
+    mov al, '.'
+    int 0x10
+    call new_line
+    call new_line
+
     ret
 
     .say_cmd:
@@ -90,8 +112,7 @@ choose_command:
 
     .motd_cmd:
     call cls
-    mov bx, welcome_msg
-    call write_buffer
+    call welcome_msg_fn
     ret
 
     .time_cmd:
@@ -99,44 +120,24 @@ choose_command:
     call new_line
     ret
 
-    .ver2_cmd:
-    mov al, 'i'
-    call write_char
-    mov al, 'd'
-    call write_char
-    mov al, 'k'
-    call write_char
-    mov al, '~'
-    call write_char
-
-    call new_line
-    call new_line
-    ret
-
-    .test_command:
-    call test
-    call new_line
-    ret
-
     .nothing:
     ret
 
 %define NEW_LINE 10,13
-%define DATE "2020-2024r."
-%define VERSION "System HTC build-12022024-test 16-bits",NEW_LINE
+%define DATE "2020-"
+%define VERSION "System HTC build-07022024-tests 16-bits",NEW_LINE
 
-welcome_msg: db "Made by: F1L1P and Rilax",NEW_LINE,NEW_LINE,VERSION,"Copyright (C) ",DATE,NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE,NEW_LINE, 0
+welcome_msg: db "Made by: F1L1P (modified by Rilax)",NEW_LINE,NEW_LINE,VERSION,"Corporation (C) ",DATE, 0
+welcome_msg2: db "r.",NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE,NEW_LINE, 0
 
 unknown_command_msg: db "The command does not exist. Type help a for a list of commands", NEW_LINE, NEW_LINE, 0
 
-help_command_msg: 
-db NEW_LINE,"1. help - Help.",NEW_LINE,"2. cls  - Clear text.",NEW_LINE,"3. ver  - System version.",NEW_LINE,"4. say  - Comment.",NEW_LINE,"5. ping - pong!",NEW_LINE,"6. motd - Welcome text.",NEW_LINE,"7. time - Displays the current time (HH:MM:SS / DD.MM.YYYY).",NEW_LINE,NEW_LINE, 0
+help_command_msg: db NEW_LINE,"1. help - Help.",NEW_LINE,"2. cls - Clear text.",NEW_LINE,"3. ver - System vesrsion.",NEW_LINE,"4. say - Comment.",NEW_LINE,"5. ping - pong!",NEW_LINE,"6. motd - Welcome text!",NEW_LINE,"7. time - Displays the current time (HH:MM:SS / DD.MM.YYYY).",NEW_LINE,NEW_LINE, 0
 
-version_command_msg: db VERSION,"Corporation (C) ", DATE, NEW_LINE, NEW_LINE, 0
+version_command_msg: db VERSION,"Corporation (C) ", DATE, 0 ; VERSION,"Corporation (C) ", DATE, NEW_LINE, NEW_LINE, 0
 ping_command_msg: db "pong!", NEW_LINE, 0
 
 command_msg: db "> ", 0
-
 cls_command: db "cls", 0
 help_command: db "help", 0
 ver_command: db "ver", 0
@@ -151,8 +152,6 @@ time_command: db "time", 0
     ; time_command: db "time -s", 0
     ; time_command: db "time -ms", 0
     ; time_command: db "time -m", 0
-ver_command2: db "ver2", 0
-test_command: db "test", 0
 
 command: times 512*2 db 0
 command_len: equ $ - command
