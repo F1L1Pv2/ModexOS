@@ -1,10 +1,11 @@
 call cls
+mov ax, 0
+mov cx, 0
 
 mov bx, welcome_msg
 call write_buffer
 
 main:
-    
     mov bx, command_msg
     call write_buffer
 
@@ -20,7 +21,7 @@ main:
 
 choose_command:
     mov bx, command
-    
+
     mov dx, cls_command
     call cmp_str
     je .cls_cmd
@@ -56,6 +57,14 @@ choose_command:
     mov dx, test_command
     call cmp_str
     je .test_command
+
+    mov dx, bindec_command
+    call cmp_str
+    je .bindec_command
+
+    mov dx, cal_command
+    call cmp_str
+    je .cal_command
 
     cmp byte [bx], 0
     je .nothing
@@ -100,13 +109,13 @@ choose_command:
     ret
 
     .ver2_cmd:
-    mov al, 'i'
+    mov al, '1'
     call write_char
-    mov al, 'd'
+    mov al, '5'
     call write_char
-    mov al, 'k'
+    mov al, '4'
     call write_char
-    mov al, '~'
+    mov al, '5'
     call write_char
 
     call new_line
@@ -118,19 +127,29 @@ choose_command:
     call new_line
     ret
 
+    .bindec_command:
+    call binary_decimal
+    call new_line
+    ret
+
+    .cal_command:
+    call calculator
+    call new_line
+    ret
+
     .nothing:
     ret
 
 %define NEW_LINE 10,13
 %define DATE "2020-2024r."
-%define VERSION "System HTC build-12022024-test 16-bits",NEW_LINE
+%define VERSION "System HTC build-13022024 16-bits",NEW_LINE
 
 welcome_msg: db "Made by: F1L1P and Rilax",NEW_LINE,NEW_LINE,VERSION,"Copyright (C) ",DATE,NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE,NEW_LINE, 0
 
 unknown_command_msg: db "The command does not exist. Type help a for a list of commands", NEW_LINE, NEW_LINE, 0
 
 help_command_msg: 
-db NEW_LINE,"1. help - Help.",NEW_LINE,"2. cls  - Clear text.",NEW_LINE,"3. ver  - System version.",NEW_LINE,"4. say  - Comment.",NEW_LINE,"5. ping - pong!",NEW_LINE,"6. motd - Welcome text.",NEW_LINE,"7. time - Displays the current time (HH:MM:SS / DD.MM.YYYY).",NEW_LINE,NEW_LINE, 0
+db NEW_LINE,"1. help - Help.",NEW_LINE,"2. cls  - Clear text.",NEW_LINE,"3. ver  - System version.",NEW_LINE,"4. say  - Comment.",NEW_LINE,"5. ping - pong!",NEW_LINE,"6. motd - Welcome text.",NEW_LINE,"7. time - Displays the current time (HH:MM:SS / DD.MM.YYYY)."NEW_LINE,"8. cal  - Calculator.",NEW_LINE,NEW_LINE, 0
 
 version_command_msg: db VERSION,"Corporation (C) ", DATE, NEW_LINE, NEW_LINE, 0
 ping_command_msg: db "pong!", NEW_LINE, 0
@@ -151,10 +170,15 @@ time_command: db "time", 0
     ; time_command: db "time -s", 0
     ; time_command: db "time -ms", 0
     ; time_command: db "time -m", 0
+cal_command: db "cal", 0
+
+; komendy testowe
 ver_command2: db "ver2", 0
 test_command: db "test", 0
+bindec_command: db "bindec", 0
+mov_ax_cx_command: db "ax=cx", 0 ; nie dziala (narazie)
 
 command: times 512*2 db 0
-command_len: equ $ - command
+command_len: equ $ - command - 1
 
 %include "core.asm"

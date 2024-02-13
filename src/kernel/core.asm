@@ -26,6 +26,8 @@ clear_buffer:
 read_buffer:
     ; input buffer in bx
     ; buffer len in dx
+    push ax
+    push cx
     push dx
     push bx
 .loop:
@@ -62,6 +64,9 @@ read_buffer:
 
     pop bx
     pop dx
+    pop cx
+    pop ax
+
 
     ret
 
@@ -83,6 +88,7 @@ read_buffer:
 
 
 write_buffer:
+    push ax
     push bx
     ; input buffer in bx
 .loop:
@@ -97,6 +103,7 @@ write_buffer:
     jmp .loop
 .exit:
     pop bx
+    pop ax
     ret
 
 cmp_str:
@@ -104,6 +111,7 @@ cmp_str:
     ; second string address in dx
     ;
 
+    push ax
     push bx
     push dx
 
@@ -128,6 +136,7 @@ cmp_str:
 
     pop dx
     pop bx
+    pop ax
     ret
 
 write_char:
@@ -140,16 +149,20 @@ write_char:
     ret
 
 cls:
+    push ax
     mov ah, 0
     mov al, VIDEO_MODE
     int 0x10
+    pop ax
     ret
 
 new_line:
+    push ax
     mov al, 10
     call write_char
     mov al, 13
     call write_char
+    pop ax
     ret
 
 say:
@@ -170,10 +183,21 @@ say:
 ;;;  \/  minor additions to the core of the system  \/  ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+space:
+    push ax
+    mov al, ' '
+    call write_char
+    pop ax
+    ret
+
 date_time:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; funkcja wyswiatlania obecnego czasu i daty ;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    push ax
+    push cx
+    push dx
 
     mov ah, 0x02 ;; Time ;;
     int 0x1a     ;; Time ;;
@@ -222,6 +246,10 @@ date_time:
 
     call new_line
 
+    pop dx
+    pop cx
+    pop ax
+
     ret
 
 print_bcd:
@@ -230,6 +258,8 @@ print_bcd:
     ;;               (AX -> 2x4 bits)              ;;
     ;;                 AX to wejsce                ;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    push ax
 
     push ax
 
@@ -246,12 +276,14 @@ print_bcd:
 
     call write_char
 
+    pop ax
+
     ret
 
 binary_decimal:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; funkcja binary to decimal (16-bits) ;;
-    ;;          AX to wejsce               ;;
+    ;;           AX to wejsce              ;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     push dx
@@ -294,15 +326,16 @@ binary_decimal:
 
 decimal_binary:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;;   funkcja binary to decimal (16-bits)  ;;
+    ;;   funkcja decimal to binary (16-bits)  ;;
     ;; BX to informacja o poczatkowym adresie ;;
+    ;;              AX to output              ;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    call flip_bytes_table
 
     push si
     push dx
     push bx
+
+    call flip_bytes_table
 
     xor si, si
     xor dx, dx
@@ -327,7 +360,10 @@ decimal_binary:
 
     pop bx
     sub bx, 48
-    mul bl
+    push dx
+    xor dx, dx
+    mul bx
+    pop dx
 
     add dx, ax
 
@@ -336,11 +372,11 @@ decimal_binary:
 
     mov ax, dx
 
+    call flip_bytes_table
+
     pop bx
     pop dx
     pop si
-
-    call flip_bytes_table
 
     ret
 
@@ -413,12 +449,18 @@ flip_bytes_table:
 
     ret
 
+if_number:
+    ret
+
+if_ascii:
+    ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  \/  include programs  \/  ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 %include "programs/calculator.asm" ;; Calculator
-%include "programs/test.asm"       ;; Test (tests core fn.) 
+%include "programs/test.asm"       ;; Test (tests core fn. and more) 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  /\  include programs  /\  ;;;
