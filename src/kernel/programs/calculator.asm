@@ -14,7 +14,6 @@ calculator:
     ; w BX jest trzymana liczba B
 
     push bx
-    push cx
     push dx
     push si
 
@@ -47,7 +46,6 @@ calculator:
 
     pop si
     pop dx
-    pop cx
     pop bx
 
     ret

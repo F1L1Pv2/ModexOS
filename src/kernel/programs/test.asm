@@ -1,8 +1,8 @@
 test:
     ; call calculator
 
-    call cls
-    call valentine
+    ; call cls
+    ; call valentine
 
     ;  mov bx, 16
     ; mov ax, 2
@@ -19,11 +19,14 @@ test:
     ; call new_line
     ; call new_line
 
-    ; mov bx, number_input
-    ; call decimal_binary
-    ; call binary_decimal
-    ; call new_line
-    ; call new_line
+    mov bx, number_input
+    ; call write_buffer
+    ; call flip_bytes_table
+    call decimal_binary
+    ; call flip_bytes_table
+    call binary_decimal
+    call new_line
+    call new_line
 
     ; mov bx, calculator_command
     ; call decimal_binary
@@ -36,7 +39,7 @@ test:
     ; call binary_decimal
     ret
 
-; number_input: db "65535", 0
+number_input: db "9", 0
 
 
 

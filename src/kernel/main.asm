@@ -184,7 +184,7 @@ choose_command:
 %define HEART 2563
 %define NEW_LINE 10,13
 %define DATE "2007-2024r."
-%define VERSION "System HTC ",HEART,"build-14022024-love",HEART," 17-yrits",NEW_LINE
+%define VERSION "System HTC ",HEART,"build-14022024-love-1258",HEART," 17-yrits",NEW_LINE
 
 %define ZIZ_VER "System HTC build-12042007 ",HEART,"-bits <333",NEW_LINE
 %define ZIZ "( ",HEART,"Z",HEART," ) <3"

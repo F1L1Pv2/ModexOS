@@ -343,11 +343,12 @@ decimal_binary:
     ;;              AX to output              ;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+    call flip_bytes_table
+
     push si
     push dx
     push bx
 
-    call flip_bytes_table
 
     xor si, si
     xor dx, dx
@@ -384,11 +385,12 @@ decimal_binary:
 
     mov ax, dx
 
-    call flip_bytes_table
 
     pop bx
     pop dx
     pop si
+
+    call flip_bytes_table
 
     ret
 
@@ -504,7 +506,7 @@ if_ascii_number:
 
 %include "programs/calculator.asm" ;; Calculator
 %include "programs/test.asm"       ;; Test (tests core fn. and more) 
-%include "programs/valentine.asm"       ;; Test (tests core fn. and more) 
+%include "programs/valentine.asm"  ;; <333
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  /\  include programs  /\  ;;;
