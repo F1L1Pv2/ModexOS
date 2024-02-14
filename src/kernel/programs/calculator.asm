@@ -86,9 +86,6 @@ calculator_choose_command:
     call cmp_str
     je .pow_cmd
     ; Operacje
-    mov dx, calculator_love_command
-    call cmp_str
-    je .love_cmd
 
     cmp byte [bx], 0
     je .nothing
@@ -174,17 +171,6 @@ calculator_choose_command:
     call calculator_input
     ret
     ; Operacje
-    .love_cmd:
-    call write_buffer
-    call new_line
-    call new_line
-
-    call calculator_love
-    call new_line
-
-    mov si, 7
-    call calculator_input
-    ret
 
     .exit_cmd:
     inc si
@@ -259,9 +245,6 @@ calculator_input:
     cmp si, 6
     jz .pow
 
-    cmp si, 7
-    jz .pow
-
     call error
     jnz .error_exit
 
@@ -292,9 +275,6 @@ calculator_input:
 .pow:
     call power
     ; konec .pow
-.love:
-    call calculator_love
-    jmp .error_exit
 
 .exit:
     call binary_decimal
@@ -310,44 +290,14 @@ calculator_input:
     xor si, si
     ret
 
-
-calculator_love:
-    mov ax, 17
-    call binary_decimal
-    call space
-    mov ax, 'Y'
-    call write_char
-    mov ax, 'e'
-    call write_char
-    mov ax, 'a'
-    call write_char
-    mov ax, 'r'
-    call write_char
-    mov ax, 's'
-    call write_char
-    call space
-    mov ax, 'Z'
-    call write_char
-    mov ax, 'i'
-    call write_char
-    mov ax, 'z'
-    call write_char
-    call space
-    mov ax, '<'
-    call write_char
-    mov ax, '3'
-    call write_char
-    ret
-
-
-calculator_command_msg: db HEART,"Calculator",HEART,"> ", 0
-calculator_input_a_msg: db HEART,"Number A",HEART,"> ", 0
-calculator_input_b_msg: db HEART,"Number B",HEART,"> ", 0
+calculator_command_msg: db "Calculator> ", 0
+calculator_input_a_msg: db "Number A> ", 0
+calculator_input_b_msg: db "Number B> ", 0
 
 calculator_welcome_msg: db "=========================================",NEW_LINE,"==  Welcome to the calculator program  ==",NEW_LINE,"=========================================", 0
 
 calculator_help_command_msg: 
-db NEW_LINE,"0. love => (2007-2024).",NEW_LINE,"1. help => Help.",NEW_LINE,"2. exit => Exit form program.",NEW_LINE,"3. cls  => Clear text.",NEW_LINE,"4. +    => Add.",NEW_LINE,"5. -    => Sub. (A-B)",NEW_LINE,"6. *    => Mul.",NEW_LINE,"7. /    => Div. (A/B)",NEW_LINE,"8. ^    => Pow. (A^B)",NEW_LINE,NEW_LINE, 0
+db NEW_LINE,"1. help => Help.",NEW_LINE,"2. exit => Exit form program.",NEW_LINE,"3. cls  => Clear text.",NEW_LINE,"4. +    => Add.",NEW_LINE,"5. -    => Sub. (A-B)",NEW_LINE,"6. *    => Mul.",NEW_LINE,"7. /    => Div. (A/B)",NEW_LINE,"8. ^    => Pow. (A^B)",NEW_LINE,NEW_LINE, 0
 
 calculator_exit_msg: db "Exit calculator!",NEW_LINE, 0
 calculator_error_msg: db "Error!",NEW_LINE, 0
@@ -363,8 +313,7 @@ calculator_pow_msg: db "Power", 0
 calculator_cls_command: db "cls", 0
 calculator_help_command: db "help", 0
 calculator_exit_command: db "exit", 0
-
-calculator_love_command: db "love", 0
+ 
 calculator_add_command: db "+", 0
 calculator_sub_command: db "-", 0
 calculator_mul_command: db "*", 0

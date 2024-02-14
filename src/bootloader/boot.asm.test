@@ -1,0 +1,31 @@
+org 0x7C00
+bits 16
+
+start:
+    mov byte [disk_number], dl ; save disk number
+
+    mov ch, 0 ; first address
+    mov dh, 0
+    mov cl, 1
+
+    mov ah, 0x02
+    int 0x13
+
+    call reg_clear
+    cli
+    hlt
+
+reg_clear: ; clear registers
+    xor ax, ax
+    xor bx, cx
+    xor cx, cx
+    xor dx, dx
+    xor si, si
+    ret 
+
+disk_number:     db 0
+
+times 510-($-$$) db 0
+dw 0AA55h
+
+exit:
