@@ -6,7 +6,7 @@ mov bx, welcome_msg
 call write_buffer
 
 main:
-    mov bx, command_msg
+    mov bx, command_tag
     call write_buffer
 
     mov bx, command
@@ -50,7 +50,11 @@ choose_command:
     call cmp_str
     je .time_cmd
 
-    mov dx, ver_command2
+    mov dx, cal_command
+    call cmp_str
+    je .cal_command
+
+    mov dx, ver2_command
     call cmp_str
     je .ver2_cmd
 
@@ -62,9 +66,13 @@ choose_command:
     call cmp_str
     je .bindec_command
 
-    mov dx, cal_command
+    mov dx, love1_command
     call cmp_str
-    je .cal_command
+    je .love_command
+    mov dx, love2_command
+    call cmp_str
+    je .love_command
+
 
     cmp byte [bx], 0
     je .nothing
@@ -109,14 +117,31 @@ choose_command:
     ret
 
     .ver2_cmd:
-    mov al, '1'
+    push ax
+
+    mov al, 'Z'
     call write_char
-    mov al, '5'
+    mov al, 'i'
     call write_char
-    mov al, '4'
+    mov al, 'z'
     call write_char
-    mov al, '5'
+    call space
+    mov al, 'I'
     call write_char
+    call space
+    mov al, 'l'
+    call write_char
+    mov al, 'o'
+    call write_char
+    mov al, 'v'
+    call write_char
+    mov al, 'e'
+    call write_char
+    call space
+    mov al, 'y'
+    call write_char
+
+    pop ax
 
     call new_line
     call new_line
@@ -128,7 +153,17 @@ choose_command:
     ret
 
     .bindec_command:
+    push ax
+
     call binary_decimal
+    call space
+    mov ax, '<'
+    call write_char
+    mov ax, '3'
+    call write_char
+
+    pop ax
+
     call new_line
     ret
 
@@ -137,24 +172,35 @@ choose_command:
     call new_line
     ret
 
+    .love_command:
+    ; call cls
+    call valentine
+    call new_line
+    ret
+
     .nothing:
     ret
 
+%define HEART 2563
 %define NEW_LINE 10,13
-%define DATE "2020-2024r."
-%define VERSION "System HTC build-13022024 16-bits",NEW_LINE
+%define DATE "2007-2024r."
+%define VERSION "System HTC ",HEART,"build-14022024-love",HEART," 17-yrits",NEW_LINE
 
-welcome_msg: db "Made by: F1L1P and Rilax",NEW_LINE,NEW_LINE,VERSION,"Copyright (C) ",DATE,NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE,NEW_LINE, 0
+%define ZIZ_VER "System HTC build-12042007 ",HEART,"-bits <333",NEW_LINE
+%define ZIZ "( ",HEART,"Z",HEART," ) <3"
+
+welcome_msg: db "Made by: F1L1P and Rilax ",ZIZ,NEW_LINE,NEW_LINE,VERSION,"Copyright <3 ",DATE,NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE,NEW_LINE, 0
 
 unknown_command_msg: db "The command does not exist. Type help a for a list of commands", NEW_LINE, NEW_LINE, 0
 
 help_command_msg: 
-db NEW_LINE,"1. help - Help.",NEW_LINE,"2. cls  - Clear text.",NEW_LINE,"3. ver  - System version.",NEW_LINE,"4. say  - Comment.",NEW_LINE,"5. ping - pong!",NEW_LINE,"6. motd - Welcome text.",NEW_LINE,"7. time - Displays the current time (HH:MM:SS / DD.MM.YYYY)."NEW_LINE,"8. cal  - Calculator.",NEW_LINE,NEW_LINE, 0
+db NEW_LINE,"0. LOVE - ... <333",NEW_LINE,"1. help - Help.",NEW_LINE,"2. cls  - Clear text.",NEW_LINE,"3. ver  - System version.",NEW_LINE,"4. say  - Comment.",NEW_LINE,"5. ping - pong!",NEW_LINE,"6. motd - Welcome text.",NEW_LINE,"7. time - Displays the current time (HH:MM:SS / DD.MM.YYYY).",NEW_LINE,"8. cal  - Calculator.",NEW_LINE,NEW_LINE, 0
 
-version_command_msg: db VERSION,"Corporation (C) ", DATE, NEW_LINE, NEW_LINE, 0
+version_command_msg: db ZIZ_VER,"Copyright <3 ","2007-2024r.", NEW_LINE, NEW_LINE, 0
 ping_command_msg: db "pong!", NEW_LINE, 0
+null_msg: db 0
 
-command_msg: db "> ", 0
+command_tag: db HEART,"> ", 0
 
 cls_command: db "cls", 0
 help_command: db "help", 0
@@ -173,10 +219,13 @@ time_command: db "time", 0
 cal_command: db "cal", 0
 
 ; komendy testowe
-ver_command2: db "ver2", 0
+ver2_command: db "ver2", 0
 test_command: db "test", 0
 bindec_command: db "bindec", 0
 mov_ax_cx_command: db "ax=cx", 0 ; nie dziala (narazie)
+
+love1_command: db "love", 0 ; 14
+love2_command: db "LOVE", 0 ; 14
 
 command: times 512*2 db 0
 command_len: equ $ - command - 1

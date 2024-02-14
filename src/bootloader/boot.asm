@@ -6,7 +6,7 @@ bits 16
 
 
 ;
-; FAT12 header ; TODO: Tu bedzie FAT16
+; FAT12 header ; TODO: Tu bedzie FAT16 albo 32 hehe a mozee exFat...
 ; 
 jmp short start
 nop

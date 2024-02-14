@@ -1,6 +1,9 @@
 test:
     ; call calculator
 
+    call cls
+    call valentine
+
     ;  mov bx, 16
     ; mov ax, 2
     ; call power

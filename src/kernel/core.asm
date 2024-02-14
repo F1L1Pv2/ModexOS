@@ -190,6 +190,18 @@ space:
     pop ax
     ret
 
+error: 
+    push bx
+    mov bx, error_msg
+    call write_buffer
+
+    inc bx
+    test bx, bx
+
+    pop bx
+    ret
+    error_msg: db 10,13,"Error!",10,13, 0
+
 date_time:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; funkcja wyswiatlania obecnego czasu i daty ;;
@@ -449,10 +461,41 @@ flip_bytes_table:
 
     ret
 
-if_number:
-    ret
+if_ascii_number:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; funkcja sprawdzania znakow innych niz cyfra w tablicy ;;
+    ;;        BX to informacja o poczatkowym adresie         ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-if_ascii:
+    push si
+    push bx
+    push dx
+
+    xor si, si
+
+.loop:
+    mov dl, byte [bx+si]
+    inc si
+
+    test dl, dl
+    jz .valid
+
+    cmp dl, 48
+    jl .exit ; Invalid number
+    cmp dl, 57
+    jg .exit ; Invalid number
+
+    jmp .loop
+
+.valid:
+    xor si, si
+
+.exit:
+    test si, si
+
+    pop dx
+    pop bx
+    pop si
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -461,6 +504,7 @@ if_ascii:
 
 %include "programs/calculator.asm" ;; Calculator
 %include "programs/test.asm"       ;; Test (tests core fn. and more) 
+%include "programs/valentine.asm"       ;; Test (tests core fn. and more) 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  /\  include programs  /\  ;;;
