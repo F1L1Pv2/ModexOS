@@ -278,6 +278,10 @@ calculator_input:
     jmp .exit
 .div:
     xor dx, dx
+
+    test bx, bx
+    jz .no_div_zero
+
     div bx
     call binary_decimal
     mov cx, dx
@@ -300,6 +304,9 @@ calculator_input:
     xor si, si
     ret
 
+.no_div_zero:
+    mov bx, calculator_no_div_zero_msg
+    call write_buffer
 .error_exit:
     call new_line
     xor si, si
@@ -346,6 +353,7 @@ db NEW_LINE,"0. love => (2007-2024).",NEW_LINE,"1. help => Help.",NEW_LINE,"2. e
 
 calculator_exit_msg: db "Exit calculator!",NEW_LINE, 0
 calculator_error_msg: db "Error!",NEW_LINE, 0
+calculator_no_div_zero_msg: db "You cannot divide by zero!",NEW_LINE, 0
 calculator_unknown_command_msg: db "Invaild command! Use the help command.", 0
 calculator_div_r_msg: db "r.", 0
 calculator_add_msg: db "Addition", 0
