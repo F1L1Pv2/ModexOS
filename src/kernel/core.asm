@@ -542,7 +542,7 @@ if_ascii_number:
 
 %include "programs/calculator.asm" ;; Calculator
 %include "programs/test.asm"       ;; Test (tests core fn. and more) 
-%include "programs/valentine.asm"  ;; <333
+; %include "programs/valentine.asm"  ;; <333
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  /\  include programs  /\  ;;;
