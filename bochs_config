@@ -1,5 +1,5 @@
-megs: 128
-floppya: 1_44=build/bios-htc.img, status=inserted
-boot: floppy
+megs: 1280
+ata0-master: type=disk, path="./build/bios-htc.img", cylinders=20, heads=16, spt=63
+boot: disk
 mouse: enabled=0
 display_library: win32, options="gui_debug"

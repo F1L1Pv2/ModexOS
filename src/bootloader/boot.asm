@@ -142,10 +142,21 @@ start:
     mov dl, [ebr_drive_number]
     call disk_read
 
+    ;calculate first data sector
+
+    mov bl, [bdb_reserved_sectors]
+    mov al, [bdb_fat_count]
+    mov cl, [bdb_sectors_per_fat]
+    mul cl
+    add al, bl
+    add al, [root_dir_size]
+    mov [first_data_sector], al
+
     ; read kernel and process FAT chain
     mov bx, KERNEL_LOAD_SEGMENT
     mov es, bx
     mov bx, KERNEL_LOAD_OFFSET
+
 
 .load_kernel_loop:
     
@@ -155,43 +166,42 @@ start:
     mov cl, [bdb_sectors_per_cluster]
     mul cl
 
-    add al, [bdb_reserved_sectors]
-    add al, [root_dir_size]
-    mov dx, ax
-    mov al, [bdb_fat_count]
-    mov cl, [bdb_sectors_per_fat]
-    mul cl
+    mov dx, [first_data_sector]
     add ax, dx
 
-    mov cl, 1
+    ; mov cl, [bdb_sectors_per_cluster]
     mov dl, [ebr_drive_number]
     call disk_read
 
-    add bx, [bdb_bytes_per_sector]
+    xor dx, dx
+    mov ax, [bdb_bytes_per_sector]
+    mul cx
+
+    add bx, ax ; update buffer offset
 
     ; compute location of next cluster
     mov ax, [kernel_cluster]
-    mov cx, 3
-    mul cx
-    mov cx, 2
-    div cx                              ; ax = index of entry in FAT, dx = cluster mod 2
+    mov cl, 2
+    mul cl
+    ; mov cx, 2
+    ; div cx                              ; ax = index of entry in FAT, dx = cluster mod 2
 
     mov si, buffer
     add si, ax
     mov ax, [ds:si]                     ; read entry from FAT table at index ax
 
-    or dl, dl
-    jz .even
+;     or dl, dl
+;     jz .even
 
-.odd:
-    shr ax, 4
-    jmp .next_cluster_after
+; .odd:
+;     shr ax, 4
+;     jmp .next_cluster_after
 
-.even:
-    and ax, 0x0FFF
+; .even:
+;     and ax, 0x0FFF
 
 .next_cluster_after:
-    cmp ax, 0x0FF8                      ; end of chain
+    cmp ax, 0xFFF8                      ; end of chain
     jae .read_finish
 
     mov [kernel_cluster], ax
@@ -373,11 +383,12 @@ disk_reset:
     ret
 
 
-msg_loading:            db 'Loading...', ENDL, 0
-msg_read_failed:        db 'Rfailed!', ENDL, 0
-msg_kernel_not_found:   db 'Kfound!', ENDL, 0
+msg_loading:            db 'Loading', ENDL, 0
+msg_read_failed:        db 'Read failed', ENDL, 0
+msg_kernel_not_found:   db 'Core Not Found', ENDL, 0
 file_kernel_bin:        db 'KERNEL  BIN'
-root_dir_size db 0
+first_data_sector: dw 0
+root_dir_size dw 0
 kernel_cluster:         dw 0
 
 KERNEL_LOAD_SEGMENT     equ 0x2000
