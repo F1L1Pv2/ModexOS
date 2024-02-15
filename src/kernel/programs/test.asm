@@ -1,4 +1,9 @@
 test:
+
+    ; call fatal_error
+
+    ; call shutdown
+
     ; call calculator
 
     ; call cls
@@ -19,14 +24,13 @@ test:
     ; call new_line
     ; call new_line
 
-    mov bx, number_input
+    ; mov bx, number_input
     ; call write_buffer
     ; call flip_bytes_table
-    call decimal_binary
+    ; call decimal_binary
     ; call flip_bytes_table
-    call binary_decimal
-    call new_line
-    call new_line
+    ; call binary_decimal
+    ; call new_line
 
     ; mov bx, calculator_command
     ; call decimal_binary

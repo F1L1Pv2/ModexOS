@@ -67,7 +67,6 @@ read_buffer:
     pop cx
     pop ax
 
-
     ret
 
 .backward:
@@ -169,7 +168,7 @@ say:
     mov bx, command
     mov dx, command_len
 
-    call new_line
+    ; call new_line
 
     call clear_buffer
     call read_buffer
@@ -190,17 +189,52 @@ space:
     pop ax
     ret
 
+shutdown: ; nie dziala dobrze!
+    mov ax, 0x1000
+    mov ax, ss
+    mov sp, 0xf000
+    mov ax, 0x5307
+    mov bx, 0x0001
+    mov cx, 0x0003
+    int 0x15
+
+    call error
+
+    mov eax, 0xE820
+    int 0x15
+
+    call fatal_error ; if interrupt doesnt work
+    ret              ; if interrupt doesnt work
+
 error: 
     push bx
+
+    call new_line
     mov bx, error_msg
     call write_buffer
+    call new_line
 
     inc bx
     test bx, bx
 
     pop bx
     ret
-    error_msg: db 10,13,"Error!",10,13, 0
+    error_msg: db "Error!", 0
+
+fatal_error: 
+    call new_line
+    mov bx, fatal_error_msg
+    call write_buffer
+    call new_line
+
+    mov bx, fatal_error_info_msg
+    call write_buffer
+    call new_line
+
+.loop
+    jmp .loop
+    fatal_error_msg: db "!!! Fatal error !!!", 0
+    fatal_error_info_msg: db "Restart your computer, click Ctrl+Alt+Del or turn off.", 0
 
 date_time:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -500,6 +534,8 @@ if_ascii_number:
     pop si
     ret
 
+%include "fat16.asm"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  \/  include programs  \/  ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -511,3 +547,6 @@ if_ascii_number:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  /\  include programs  /\  ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+exit_core:
+call fatal_error

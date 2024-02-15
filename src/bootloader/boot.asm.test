@@ -1,12 +1,29 @@
 org 0x7C00
 bits 16
 
-start:
-    mov byte [disk_number], dl ; save disk number
+; 628 sectors (629)
 
-    mov ch, 0 ; first address
+start:
+    ; mov byte [disk_number], dl ; save disk number
+
+    xor ax, ax
+
+    mov dl, 0x80
+    mov ch, 0
     mov dh, 0
-    mov cl, 1
+    mov cl, 2
+    mov al, 628
+
+    push ax
+    push dx
+
+    mov dl, 16
+    mul dl
+
+    pop dx
+    pop ax
+
+    add bx,
 
     mov ah, 0x02
     int 0x13

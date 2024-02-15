@@ -27,7 +27,7 @@ calculator:
     call new_line
 
 .loop:
-    mov bx, calculator_command_msg
+    mov bx, calculator_command_tag
     call write_buffer
 
     mov bx, calculator_command
@@ -49,6 +49,8 @@ calculator:
     pop bx
 
     ret
+
+call fatal_error
 
 calculator_choose_command:
     mov bx, calculator_command
@@ -179,8 +181,10 @@ calculator_choose_command:
     .nothing:
     ret
 
+call fatal_error
+
 calculator_input:
-    mov bx, calculator_input_a_msg
+    mov bx, calculator_input_a_tag
     call write_buffer
 
     mov bx, calculator_command
@@ -203,7 +207,7 @@ calculator_input:
     push ax ; zapis ax poniewaz jest potem tymczasowo modyfikowany (liczba A)
     call new_line
 
-    mov bx, calculator_input_b_msg
+    mov bx, calculator_input_b_tag
     call write_buffer
 
     mov bx, calculator_command
@@ -279,6 +283,15 @@ calculator_input:
 .exit:
     call binary_decimal
     call new_line
+
+    cmp si, 5
+    jz .div_mov_r 
+
+    xor si, si
+    ret
+
+.div_mov_r:
+    mov ax, dx
     xor si, si
     ret
 
@@ -290,9 +303,11 @@ calculator_input:
     xor si, si
     ret
 
-calculator_command_msg: db "Calculator> ", 0
-calculator_input_a_msg: db "Number A> ", 0
-calculator_input_b_msg: db "Number B> ", 0
+call fatal_error
+
+calculator_command_tag: db "Calculator> ", 0
+calculator_input_a_tag: db "Number A> ", 0
+calculator_input_b_tag: db "Number B> ", 0
 
 calculator_welcome_msg: db "=========================================",NEW_LINE,"==  Welcome to the calculator program  ==",NEW_LINE,"=========================================", 0
 

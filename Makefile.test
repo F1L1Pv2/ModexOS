@@ -1,0 +1,30 @@
+ASM=nasm
+SRC_DIR=src
+BUILD_DIR=build
+
+.phony: all test bootloader kernel clean always
+
+test: $(BUILD_DIR)/test.img
+
+$(BUILD_DIR)/test.img: bootloader kernel
+	dd bs=512 count=2880 if=/dev/zero of=$(BUILD_DIR)/test.img
+	dd conv=notrunc if=$(BUILD_DIR)/boot.bin of=$(BUILD_DIR)/test.img
+	dd bs=1 seek=512 conv=notrunc iflag=skip_bytes,count_bytes if=$(BUILD_DIR)/kernel.bin of=$(BUILD_DIR)/test.img
+
+
+
+bootloader: $(BUILD_DIR)/boot.bin 
+
+$(BUILD_DIR)/boot.bin: always
+	$(ASM) $(SRC_DIR)/bootloader/boot.asm -f bin -o $(BUILD_DIR)/boot.bin
+
+kernel: $(BUILD_DIR)/kernel.bin
+
+$(BUILD_DIR)/kernel.bin: always
+	$(ASM) $(SRC_DIR)/kernel/main.asm -f bin -o $(BUILD_DIR)/kernel.bin
+
+always:
+	mkdir -p $(BUILD_DIR)
+
+clean:
+	rm -rf $(BUILD_DIR)/*
