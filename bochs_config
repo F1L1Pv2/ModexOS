@@ -1,0 +1,5 @@
+megs: 128
+floppya: 1_44=build/bios-htc.img, status=inserted
+boot: floppy
+mouse: enabled=0
+display_library: win32, options="gui_debug"

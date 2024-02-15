@@ -157,7 +157,7 @@ choose_command:
 
     .love_command:
     ; call cls
-    call valentine
+    ; call valentine
     call new_line
     ret
 

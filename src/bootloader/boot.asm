@@ -102,6 +102,7 @@ start:
 .root_dir_after:
 
     ; read root directory
+    mov [root_dir_size], al
     mov cl, al                          ; cl = number of sectors to read = size of root directory
     pop ax                              ; ax = LBA of root directory
     mov dl, [ebr_drive_number]          ; dl = drive number (we saved it previously)
@@ -150,10 +151,18 @@ start:
     
     ; Read next cluster
     mov ax, [kernel_cluster]
-    
-    ; not nice :( hardcoded value
-    add ax, 31                          ; first cluster = (kernel_cluster - 2) * sectors_per_cluster + start_sector
-                                        ; start sector = reserved + fats + root directory size = 1 + 18 + 134 = 33
+    sub al, 2
+    mov cl, [bdb_sectors_per_cluster]
+    mul cl
+
+    add al, [bdb_reserved_sectors]
+    add al, [root_dir_size]
+    mov dx, ax
+    mov al, [bdb_fat_count]
+    mov cl, [bdb_sectors_per_fat]
+    mul cl
+    add ax, dx
+
     mov cl, 1
     mov dl, [ebr_drive_number]
     call disk_read
@@ -171,7 +180,7 @@ start:
     add si, ax
     mov ax, [ds:si]                     ; read entry from FAT table at index ax
 
-    or dx, dx
+    or dl, dl
     jz .even
 
 .odd:
@@ -365,9 +374,10 @@ disk_reset:
 
 
 msg_loading:            db 'Loading...', ENDL, 0
-msg_read_failed:        db 'Read from disk failed!', ENDL, 0
-msg_kernel_not_found:   db 'KERNEL.BIN file not found!', ENDL, 0
+msg_read_failed:        db 'Rfailed!', ENDL, 0
+msg_kernel_not_found:   db 'Kfound!', ENDL, 0
 file_kernel_bin:        db 'KERNEL  BIN'
+root_dir_size db 0
 kernel_cluster:         dw 0
 
 KERNEL_LOAD_SEGMENT     equ 0x2000
