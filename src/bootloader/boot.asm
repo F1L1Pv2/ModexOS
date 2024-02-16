@@ -6,7 +6,7 @@ bits 16
 
 
 ;
-; FAT12 header ; TODO: Tu bedzie FAT16 albo 32 hehe a mozee exFat...
+; FAT16 header ;
 ; 
 jmp short start
 nop
@@ -83,7 +83,7 @@ start:
     ; compute LBA of root directory = reserved + fats * sectors_per_fat
     ; note: this section can be hardcoded
     mov ax, [bdb_sectors_per_fat]
-    mov bl, [bdb_fat_count]
+    mov bl, byte [bdb_fat_count]
     xor bh, bh
     mul bx                              ; ax = (fats * sectors_per_fat)
     add ax, [bdb_reserved_sectors]      ; ax = LBA of root directory
@@ -102,9 +102,10 @@ start:
 .root_dir_after:
 
     ; read root directory
+    mov byte  [root_dir_size], al
     mov cl, al                          ; cl = number of sectors to read = size of root directory
     pop ax                              ; ax = LBA of root directory
-    mov dl, [ebr_drive_number]          ; dl = drive number (we saved it previously)
+    mov dl, byte [ebr_drive_number]          ; dl = drive number (we saved it previously)
     mov bx, buffer                      ; es:bx = buffer
     call disk_read
 
@@ -137,52 +138,57 @@ start:
     ; load FAT from disk into memory
     mov ax, [bdb_reserved_sectors]
     mov bx, buffer
-    mov cl, [bdb_sectors_per_fat]
-    mov dl, [ebr_drive_number]
+    mov cl, byte [bdb_sectors_per_fat]
+    mov dl, byte [ebr_drive_number]
     call disk_read
+
+    ; calculate first data sector
+
+    mov bl, byte [bdb_reserved_sectors]
+    mov al, byte [bdb_fat_count]
+    mov cl, byte [bdb_sectors_per_fat]
+    mul cl
+    add al, bl
+    add al, byte [root_dir_size]
+    mov byte [first_data_sector], al
 
     ; read kernel and process FAT chain
     mov bx, KERNEL_LOAD_SEGMENT
     mov es, bx
     mov bx, KERNEL_LOAD_OFFSET
 
+
 .load_kernel_loop:
     
     ; Read next cluster
     mov ax, [kernel_cluster]
-    
-    ; not nice :( hardcoded value
-    add ax, 31                          ; first cluster = (kernel_cluster - 2) * sectors_per_cluster + start_sector
-                                        ; start sector = reserved + fats + root directory size = 1 + 18 + 134 = 33
-    mov cl, 1
-    mov dl, [ebr_drive_number]
+    sub al, 2
+    mov cl, byte [bdb_sectors_per_cluster]
+    mul cl
+
+    mov dx, [first_data_sector]
+    add ax, dx
+
+    mov dl, byte [ebr_drive_number]
     call disk_read
 
-    add bx, [bdb_bytes_per_sector]
+    xor dx, dx
+    mov ax, [bdb_bytes_per_sector]
+    mul cx
+
+    add bx, ax ; update buffer offset
 
     ; compute location of next cluster
     mov ax, [kernel_cluster]
-    mov cx, 3
-    mul cx
-    mov cx, 2
-    div cx                              ; ax = index of entry in FAT, dx = cluster mod 2
+    mov cl, 2
+    mul cl
 
     mov si, buffer
     add si, ax
     mov ax, [ds:si]                     ; read entry from FAT table at index ax
 
-    or dx, dx
-    jz .even
-
-.odd:
-    shr ax, 4
-    jmp .next_cluster_after
-
-.even:
-    and ax, 0x0FFF
-
 .next_cluster_after:
-    cmp ax, 0x0FF8                      ; end of chain
+    cmp ax, 0xFFF8                      ; end of chain
     jae .read_finish
 
     mov [kernel_cluster], ax
@@ -191,12 +197,12 @@ start:
 .read_finish:
     
     ; jump to our kernel
-    mov dl, [ebr_drive_number]          ; boot device in dl
+    mov dl, byte [ebr_drive_number]     ; boot device in dl
 
     mov ax, KERNEL_LOAD_SEGMENT         ; set segment registers
     mov ds, ax
     mov es, ax
-
+    
     jmp KERNEL_LOAD_SEGMENT:KERNEL_LOAD_OFFSET
 
     jmp wait_key_and_reboot             ; should never happen
@@ -257,20 +263,6 @@ puts:
     pop si    
     ret
 
-;
-; Disk routines
-;
-
-;
-; Converts an LBA address to a CHS address
-; Parameters:
-;   - ax: LBA address
-; Returns:
-;   - cx [bits 0-5]: sector number
-;   - cx [bits 6-15]: cylinder
-;   - dh: head
-;
-
 lba_to_chs:
 
     push ax
@@ -296,15 +288,6 @@ lba_to_chs:
     pop ax
     ret
 
-
-;
-; Reads sectors from a disk
-; Parameters:
-;   - ax: LBA address
-;   - cl: number of sectors to read (up to 128)
-;   - dl: drive number
-;   - es:bx: memory address where to store read data
-;
 disk_read:
 
     push ax                             ; save registers we will modify
@@ -348,12 +331,6 @@ disk_read:
     pop ax                             ; restore registers modified
     ret
 
-
-;
-; Resets disk controller
-; Parameters:
-;   dl: drive number
-;
 disk_reset:
     pusha
     mov ah, 0
@@ -364,10 +341,12 @@ disk_reset:
     ret
 
 
-msg_loading:            db 'Loading...', ENDL, 0
-msg_read_failed:        db 'Read from disk failed!', ENDL, 0
-msg_kernel_not_found:   db 'KERNEL.BIN file not found!', ENDL, 0
+msg_loading:            db 'Loading', ENDL, 0
+msg_read_failed:        db 'Read failed', ENDL, 0
+msg_kernel_not_found:   db 'Core not found', ENDL, 0
 file_kernel_bin:        db 'KERNEL  BIN'
+first_data_sector: dw 0
+root_dir_size dw 0
 kernel_cluster:         dw 0
 
 KERNEL_LOAD_SEGMENT     equ 0x2000

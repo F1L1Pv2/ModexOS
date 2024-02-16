@@ -255,7 +255,7 @@ calculator_input:
 .add:
     add ax, bx
     jmp .exit
-.sub:    
+.sub:
     sub ax, bx
     jmp .exit
 .mul:

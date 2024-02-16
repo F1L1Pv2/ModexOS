@@ -53,4 +53,4 @@ valentine:
     ; call new_line
     ret
 
-%include "programs/valentine_text.asm"
+%include "drivers/programs/valentine_text.asm"

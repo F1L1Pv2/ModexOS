@@ -7,8 +7,8 @@ BUILD_DIR=build
 bios-htc: $(BUILD_DIR)/bios-htc.img
 
 $(BUILD_DIR)/bios-htc.img: bootloader kernel
-	dd if=/dev/zero of=$(BUILD_DIR)/bios-htc.img bs=512 count=2880
-	mkfs.fat -F 12 -n "NBOS" $(BUILD_DIR)/bios-htc.img
+	dd if=/dev/zero of=$(BUILD_DIR)/bios-htc.img bs=1024 count=10240
+	mkfs.fat -F 16 -n "NBOS" $(BUILD_DIR)/bios-htc.img
 	# dd if=$(BUILD_DIR)/bootloader.bin of=$(BUILD_DIR)/bios-htc.img conv=notrunc
 	dd if=$(BUILD_DIR)/bootloader.bin of=$(BUILD_DIR)/bios-htc.img conv=notrunc bs=1 count=3
 	dd if=$(BUILD_DIR)/bootloader.bin of=$(BUILD_DIR)/bios-htc.img conv=notrunc bs=1 skip=62 seek=62

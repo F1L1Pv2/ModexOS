@@ -31,11 +31,35 @@ read_buffer:
     push dx
     push bx
 .loop:
-
     ; capturing character
     mov ah, 0
     int 0x16
     ; capturing character
+
+    ; handling other character
+    push ax
+    cmp ah, 0x48
+    jz .block
+    cmp ah, 0x4D
+    jz .block
+    cmp ah, 0x4B
+    jz .block
+    cmp ah, 0x50
+    jz .block
+
+    cmp al, 0x0a
+    jnz .ctrl_j
+    cmp ah, 0x24
+    jz .block
+    .ctrl_j:
+
+    cmp al, 0x07
+    jnz .ctrl_g
+    cmp ah, 0x22
+    jz .block
+    .ctrl_g:
+    pop ax
+    ; handling other character
 
     ; handling enter
     cmp ah, 28
@@ -50,7 +74,7 @@ read_buffer:
     cmp al, 8
     je .backward
     ; handling backspace
-        
+
     cmp bx, cx
     jge .loop
 
@@ -60,14 +84,6 @@ read_buffer:
     inc bx
 
     jmp .loop
-.exit:
-
-    pop bx
-    pop dx
-    pop cx
-    pop ax
-
-    ret
 
 .backward:
     pop cx
@@ -85,22 +101,33 @@ read_buffer:
     .exit_back:
     jmp .loop
 
+.block:
+    jmp .loop
+
+.exit:
+    pop bx
+    pop dx
+    pop cx
+    pop ax
+    ret
+
 
 write_buffer:
     push ax
     push bx
+    push si
     ; input buffer in bx
+    mov si, bx
+    cld
 .loop:
-    mov al, [bx]
-
-    cmp al, 0
-    je .exit
-
+    lodsb
+    test al, al
+    jz .exit
     call write_char
-    inc bx
 
     jmp .loop
 .exit:
+    pop si
     pop bx
     pop ax
     ret
@@ -534,15 +561,25 @@ if_ascii_number:
     pop si
     ret
 
-%include "fat16.asm"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;  \/  include drivers  \/  ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%include "drivers/file_sys.asm" ; File system driver
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;  /\  include drivers  /\  ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  \/  include programs  \/  ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "programs/calculator.asm" ;; Calculator
-%include "programs/test.asm"       ;; Test (tests core fn. and more) 
-%include "programs/valentine.asm"  ;; <333
+%include "drivers/programs/calculator.asm" ; Calculator
+%include "drivers/programs/test.asm"       ; Test (tests core fn. and more) 
+%include "drivers/programs/valentine.asm"  ; <333
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;  /\  include programs  /\  ;;;
