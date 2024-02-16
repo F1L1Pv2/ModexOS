@@ -6,7 +6,7 @@ bits 16
 
 
 ;
-; FAT16 header ;
+; FAT16 header
 ; 
 jmp short start
 nop
