@@ -20,7 +20,7 @@ test:
     ; call file_sys
     ; call new_line
     ; jmp test
-.exit
+.exit:
     ret
 
 number_input: db "9", 0

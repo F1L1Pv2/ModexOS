@@ -171,7 +171,7 @@ choose_command:
     call fatal_error
     ret
 
-    .restore_cmd_command
+    .restore_cmd_command:
     mov bx, command
     call write_buffer
     call new_line

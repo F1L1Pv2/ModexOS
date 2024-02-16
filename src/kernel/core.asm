@@ -258,7 +258,7 @@ fatal_error:
     call write_buffer
     call new_line
 
-.loop
+.loop:
     jmp .loop
     fatal_error_msg: db "!!! Fatal error !!!", 0
     fatal_error_info_msg: db "Restart your computer, click Ctrl+Alt+Del or turn off.", 0
