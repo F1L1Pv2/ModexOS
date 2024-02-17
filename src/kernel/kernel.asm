@@ -228,12 +228,6 @@ mov_ax_cx_command: db "ax=cx", 0 ; nie dziala (narazie)
 love1_command: db "love", 0 ; z
 love2_command: db "LOVE", 0 ; z
 
-; disk byte table!
-disk_num: db 0
-cylinder_num: db 0 
-sector_num:   db 0
-head_num:     db 0
-
 command: times 512*2 db 0
 command_len: equ $ - command - 1
 
