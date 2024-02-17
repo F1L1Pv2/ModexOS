@@ -18,6 +18,7 @@ calculator:
     push si
 
     xor si, si
+    ; xor di, di
     xor cx, cx
 
     call new_line
@@ -163,6 +164,17 @@ calculator_choose_command:
     call calculator_input
     ret
 
+    ; .mod_cmd:
+    ; mov bx, calculator_mod_msg
+    ; call write_buffer
+    ; call new_line
+    ; call new_line
+
+    ; mov si, 5
+    ; inc di
+    ; call calculator_input
+    ; ret
+
     .pow_cmd:
     mov bx, calculator_pow_msg
     call write_buffer
@@ -254,12 +266,24 @@ calculator_input:
 
 .add:
     add ax, bx
+
+    mov bx, calculator_add_command
+    call write_buffer
+
     jmp .exit
 .sub:
     sub ax, bx
+
+    mov bx, calculator_sub_command
+    call write_buffer
+
     jmp .exit
 .mul:
     mul bx
+
+    mov bx, calculator_mul_command
+    call write_buffer
+
     jmp .exit
 .div:
     xor dx, dx
@@ -268,6 +292,47 @@ calculator_input:
     jz .no_div_zero
 
     div bx
+    mov bx, calculator_div_command
+    call write_buffer
+    jmp .div_result
+.pow:
+    call power
+    mov bx, calculator_pow_command
+    call write_buffer
+    ; konec .pow
+
+.exit:
+    push ax
+    mov al, '='
+    call write_char
+    pop ax
+    call space
+    call binary_decimal
+    call new_line
+    ; call new_line
+
+    xor si, si
+    ret
+
+; .mod_result:
+;     mov cx, dx
+;     mov dx, ax
+;     mov ax, cx
+
+;     call .exit
+
+;     mov ax, dx
+;     xor di, di
+;     xor si, si
+;     ret
+
+.div_result:
+    push ax
+    mov al, '='
+    call write_char
+    pop ax
+    call space
+
     call binary_decimal
     mov cx, dx
     mov dx, ax
@@ -275,22 +340,10 @@ calculator_input:
     call space
     mov bx, calculator_div_r_msg
     call write_buffer
-    jmp .exit
-.pow:
-    call power
-    ; konec .pow
 
-.exit:
     call binary_decimal
     call new_line
 
-    cmp si, 5
-    jz .div_mov_r 
-
-    xor si, si
-    ret
-
-.div_mov_r:
     mov ax, dx
     xor si, si
     ret
@@ -323,6 +376,7 @@ calculator_add_msg: db "Addition", 0
 calculator_sub_msg: db "Subtraction", 0
 calculator_mul_msg: db "Multiplication", 0
 calculator_div_msg: db "Divide", 0
+calculator_mod_msg: db "Modulo", 0
 calculator_pow_msg: db "Power", 0
 
 calculator_cls_command: db "cls", 0
