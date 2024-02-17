@@ -343,8 +343,7 @@ print_bcd:
 
     pop ax
 
-    shl al, 4
-    shr al, 4
+    and al, 0b00001111
     add al, 48
 
     call write_char

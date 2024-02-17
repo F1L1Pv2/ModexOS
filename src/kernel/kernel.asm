@@ -183,7 +183,7 @@ call fatal_error
 %define HEART 2563
 %define NEW_LINE 10,13
 %define DATE "2020-2024r."
-%define VER "System HTC build-17022024 16-bits",NEW_LINE
+%define VER "System HTC build-17022024-test 16-bits",NEW_LINE
 
 welcome_msg: db "Made by: F1L1P and Rilax",NEW_LINE,NEW_LINE,VER,"Copyright (C) ",DATE,NEW_LINE,NEW_LINE,"Type help a for a list of commands.",NEW_LINE,NEW_LINE, 0
 
