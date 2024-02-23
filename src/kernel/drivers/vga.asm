@@ -1,0 +1,1 @@
+global_color: db 0x0A
