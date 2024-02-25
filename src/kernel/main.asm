@@ -7,8 +7,8 @@ mov byte [disk_num], dl
 ;;;;;;;;;;;;;;;;;;
 ;;; \/ MAIN \/ ;;;
 ;;;;;;;;;;;;;;;;;;
-buffer: db "Made by: F1L1P and Rilax",10,0
-buffer: db "HTC 32 bit prot-23022024 (proteted mode edition)",10,"Copyright (C)",10,0
+global_color: db 0x0A
+welcome_msg:  db "Made by: F1L1P and Rilax",10,10,"HTC 32 bit prot-23022024 (proteted mode edition)",10,"Copyright (C) 2020-2024r.",10,10,0
 terminal_msg: db "#> ",0
 
 main: ; main loop
@@ -18,8 +18,17 @@ main: ; main loop
     mov ds, ax
     mov ss, ax
 
-.loop:
-    
+    ; mov ah, [global_color]
+    ; call clear_screen
+
+    ; mov ah, [global_color]
+    ; mov esi, welcome_msg
+    ; call write_buffer
+    ; mov esi, terminal_msg
+    ; call write_buffer
+
+    .loop:
+    call keyboard_handler
     jmp .loop
 
     cli
@@ -27,18 +36,18 @@ main: ; main loop
 
 ; disk byte table!
 disk_num:     db 0
-cylinder_num: db 0 
+cylinder_num: db 0
 sector_num:   db 0
 head_num:     db 0
 
 ; Screen buffer address!
 ScreenBuffer  equ 0xB8000
 
-; Include 32 bits core and drivers!
+; Include core and drivers!
 bits 32
 %include "core.asm"
 %include "drivers/vga.asm"
-%include "drivers/ps2io.asm"
+%include "drivers/keyboard.asm"
 ;;;;;;;;;;;;;;;;;;
 ;;; /\ MAIN /\ ;;;
 ;;;;;;;;;;;;;;;;;;
