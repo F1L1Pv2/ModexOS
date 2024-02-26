@@ -1,3 +1,5 @@
+bits 32
+
 binary_decimal:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; funkcja binary to decimal (16-bits) ;;
@@ -31,7 +33,7 @@ binary_decimal:
 .flip:
     pop eax
     mov ah, [global_color]
-    call write_char_vga
+    call write_char
     inc word [cursor]
 
     dec ebx
@@ -43,6 +45,58 @@ binary_decimal:
     pop edx
 
     call update_cursor
+    ret
+
+
+print_hex:
+    ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;    funkcja print hex (4-bits)       ;;
+    ;;            AL to wejsce             ;;
+    ;; (funkcja nie updat'uje kursora vga) ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;F1L1P;;
+
+    push eax
+    cmp al, 0xA
+    jge .letter
+.number:
+    add al, '0'
+    jmp .after
+.letter:
+
+    add al, 'A' - 0xA
+.after:
+    mov ah, [global_color]
+
+    call write_char
+    inc word [cursor]
+
+    pop eax
+
+    ret
+
+print_byte:
+    ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;    funkcja print byte (8-bits)      ;;
+    ;;            AL to wejsce             ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;F1L1P;;
+
+    push eax
+    push ebx
+    
+    mov bl, al
+
+    shr al, 4
+    and al, 0b00001111
+    call print_hex
+    mov al, bl
+    and al, 0b00001111
+    call print_hex
+
+    pop ebx
+    pop eax
+
+    call update_cursor
+
     ret
 
 binary_hexadecimal:
@@ -84,16 +138,16 @@ binary_hexadecimal:
 
         mov ah, [global_color]
         mov al, '0'
-        call write_char_vga
+        call write_char
         inc word [cursor]
         mov al, 'x'
-        call write_char_vga
+        call write_char
         inc word [cursor]
 
     .flip:
         pop eax
         mov ah, [global_color]
-        call write_char_vga
+        call write_char
         inc word [cursor]
 
         dec ebx
@@ -114,9 +168,3 @@ fatal_error:
     cli
     hlt
 fatal_error_msg: db "Fatal error!!!",0
-
-write_char:
-    call write_char_vga
-    inc word [cursor]
-    call update_cursor
-    ret

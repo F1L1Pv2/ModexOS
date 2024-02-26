@@ -1,3 +1,4 @@
+switching:
 cli
 in al, 0x92
 test al, 2

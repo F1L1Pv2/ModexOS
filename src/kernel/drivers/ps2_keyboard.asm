@@ -1,25 +1,4 @@
-terminal_offset:              dw 0
-terminal_content: times 80*25 db 0
-terminal_cursor:              dw 0
-
-keyboard_handler:
-    mov ah, [global_color]
-    call clear_screen
-    mov esi, welcome_msg
-    call write_buffer
-    ; call new_line
-    ; call new_line
-    ; call new_line
-    mov esi, terminal_msg
-    call write_buffer
-    mov dx, word [cursor]
-    mov word [terminal_offset], dx
-
-    mov esi, terminal_content
-    call write_buffer
-    call terminal_handle_key
-    call update_cursor
-    ret
+bits 32
 
 terminal_handle_key:
     push edx
@@ -120,8 +99,6 @@ read_char:
 
     call wait_set_output
 
-    ; xor eax, eax
-
     in al, 0x60
 
     ; TODO: Change into table not an hardcoded if else if else
@@ -210,32 +187,6 @@ wait_set_output:
     pop ecx
     ret
 
-; %define KeyCodeTab_Press 0x0F
-; %define KeyCodeTab_Break 0x8F
-
-; %define KeyCodeCtrl_Press 0x1D
-; %define KeyCodeCtrl_Break 0x9D
-
-; %define KeyCodeShift_Press 0x2A
-; %define KeyCodeShift_Break 0xAA
-
-; %define KeyCodeAlt_Press 0x38
-; %define KeyCodeAlt_Break 0xB8
-
-; %define KeyCodeCapslock_Press 0x3A
-; %define KeyCodeCapslock_Break 0xBA
-
-
-; %define SpecialKey_Shift         0b00000001
-; %define SpecialKey_Control       0b00000010
-; %define SpecialKey_Alt           0b00000100
-; %define SpecialKey_Command       0b00001000
-; %define SpecialKey_Capslock      0b00010000
-; %define SpecialKey_Tab           0b00100000
-; %define SpecialKey_RightControl  0b01000000
-; %define SpecialKey_RightAlt      0b10000000
-; special_keys: db 0
-
 shift:    db 0
 capslock: db 0
 
@@ -257,105 +208,3 @@ shift_code_key_table:
                db 0xff,0xff,0xff,0xfe,0xfe,0xff,0xff,0xff
     times 4*41 db 0xff
                db 0
-; code key table
-
-
-
-; read_char:
-;     push edi
-;     call wait_set_output
-;     in al, 0x60
-    
-;     mov edi, eax
-;     and edi, 0xFF
-;     mov al, [edi+code_key_table-1]
-;     pop edi
-;     ret
-
-; keyboard_handler:
-;     call read_char
-
-;     cmp al, 10
-;     jz .new_line
-;     cmp al, 8
-;     jz .backspace
-;     cmp al, 27
-;     jz .after_loop
-
-;     cmp al, 0xFE
-;     je .ret
-;     cmp al, 0xFF
-;     je .ret
-;     call write_char_vga
-;     inc word [cursor]
-;     call update_cursor
-;     inc word [write_len]
-;     .after_loop:
-;     ret
-
-;     .new_line: ; rilax enter
-;     push ebx
-;     xor bx, bx
-;     mov word [write_len], bx
-;     pop ebx
-
-;     call new_line
-;     call update_cursor
-
-;     push esi
-;     mov esi, terminal_msg
-;     call write_buffer
-;     pop esi
-;     ret
-
-;     .backspace:
-;     call backspace
-;     call update_cursor
-;     ret
-
-;     .ret:
-;     ret
-
-; wait_clear_input:
-;     push ecx
-;     mov cl, 3
-;     .loop:
-;     in al, 0x64
-;     and al, 0b00000010
-;     cmp al, 0
-;     jne .loop
-;     pop ecx
-;     ret
-
-; wait_set_input:
-;     push ecx
-;     mov cl, 3
-;     .loop:
-;     in al, 0x64
-;     and al, 0b00000010
-;     cmp al, 0
-;     je .loop
-;     pop ecx
-;     ret
-
-; wait_clear_output:
-;     push ecx
-;     mov cl, 3
-;     .loop:
-;     in al, 0x64
-;     and al, 0b00000001
-;     cmp al, 0
-;     jne .loop
-;     pop ecx
-;     ret
-
-; wait_set_output:
-;     push ecx
-;     mov cl, 3
-;     .loop:
-;     in al, 0x64
-;     and al, 0b00000001
-;     cmp al, 0
-;     je .loop
-;     pop ecx
-;     ret
