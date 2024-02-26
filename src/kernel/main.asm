@@ -1,4 +1,4 @@
-%include "drivers/initial_setup.asm"
+%include "core/initial_setup.asm"
 
 ;;;;;;;;;;;;;;;;;;
 ;;; \/ MAIN \/ ;;;
@@ -64,17 +64,15 @@ main: ; main loop
     mov ds, ax
     mov ss, ax
 
-.loop:
 
     mov ah, [global_color]
     call clear_screen
-
     mov esi, welcome_msg
     call write_buffer
     mov esi, terminal_msg
     call write_buffer
-    mov esi, terminal_content
-    call write_buffer
+
+.loop:
 
     call update_screen
 
@@ -96,10 +94,9 @@ head_num:     db 0
 ScreenBuffer  equ 0xB8000
 
 ; Include core and drivers!
-%include "core.asm"
 %include "drivers/vga.asm"
 %include "drivers/ps2_keyboard.asm"
-%include "utils/print.asm"
+%include "core/print.asm"
 ;;;;;;;;;;;;;;;;;;
 ;;; /\ MAIN /\ ;;;
 ;;;;;;;;;;;;;;;;;;
