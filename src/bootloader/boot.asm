@@ -343,7 +343,7 @@ disk_reset:
 
 msg_loading:            db 'Loading', ENDL, 0
 msg_read_failed:        db 'Read failed', ENDL, 0
-msg_kernel_not_found:   db 'Core not found', ENDL, 0
+msg_kernel_not_found:   db 'Sys not found', ENDL, 0
 file_kernel_bin:        db 'KERNEL  BIN'
 first_data_sector: dw 0
 root_dir_size dw 0

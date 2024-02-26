@@ -10,13 +10,13 @@ file_sys:
     push dx
     push si
 
-    xor dx, dx ; dx = 0
-    ; xor bx, bx ; bx = 0
+    ; xor dx, dx ; dx = 0
+    ; ; xor bx, bx ; bx = 0
 
-    ; mov ax, 36 ; ax = 1007 ; TESTS
-    ; inc ax
-    call lba_chs ; lba to chs (input in *ax*, output in *bx.ch.cl*)
-    call test_file_sys ; TESTS
+    ; ; mov ax, 36 ; ax = 1007 ; TESTS
+    ; ; inc ax
+    ; call lba_chs ; lba to chs (input in *ax*, output in *bx.ch.cl*)
+    ; call test_file_sys ; TESTS
     
     pop si
     pop dx
@@ -89,40 +89,4 @@ disk_info:
     inc dh
     mov byte [head_num],     dh
     mov dl, byte [disk_num]
-
-    call test_file_sys2
     ret
-
-test_file_sys2:
-    xor ax, ax
-    mov al, byte [cylinder_num]
-    call binary_decimal
-    call space
-    mov al, byte [sector_num]
-    call binary_decimal
-    call space
-    mov al, byte [head_num]
-    call binary_decimal
-    call space
-    mov al, byte [disk_num]
-    call binary_decimal
-    call new_line
-    call new_line
-    ret
-
-test_file_sys:
-    mov ax, bx
-    call binary_decimal
-    mov al, '.'
-    call write_char
-    xor ax, ax
-    mov al, ch
-    call binary_decimal
-    mov al, '.'
-    call write_char
-    xor ax, ax
-    mov al, cl
-    call binary_decimal
-    ret
-
-call fatal_error
