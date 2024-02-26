@@ -2,11 +2,11 @@ switching:
 cli
 in al, 0x92
 test al, 2
-jnz after
+jnz .after
 or al, 2
 and al, 0xFE
 out 0x92, al
-after:
+.after:
 lgdt [g_GDTDesc]
 
 mov eax, cr0

@@ -23,12 +23,17 @@ terminal_handle_key:
     
     cmp al, 8
     je .backspace
+    cmp al, 10
+    je .new_line
     cmp al, 0xFE
     je .after
     cmp al, 0xFF
     je .after
     
     mov [terminal_content+edx], al
+    mov ah, [global_color]
+    call write_char
+    inc word [cursor]
     
     inc word [terminal_cursor]
     jmp .after
@@ -45,21 +50,83 @@ terminal_handle_key:
     ; jge .after
     ; inc word [terminal_cursor]
     jmp .after
+
+    .new_line:
+    cmp byte [shift], 0
+    jz .run_command
+    jmp .write_new_line
+
+
+
+
+    .run_command:
+    ; TODO: end handling keys and run command
+    jmp .after
+
+    .write_new_line:
+    mov byte [terminal_content+edx], 10
+    inc word [terminal_cursor]
+    xor edx, edx
+    mov dx, word [cursor]
+    mov byte [virtual_terminal+edx*2], 0xFF
+    call new_line
+    jmp .after
+
+    jmp .after
+
+    .backspace_newline:
+    call move_back_while_space
+    jmp .after_backspace_newline
+
     .backspace:
+
     cmp word [terminal_cursor], 0
     je .after
+    cmp word [cursor], 0
+    je .after
+
     dec word [terminal_cursor]
-    dec edx
-    mov al, 0
-    mov [terminal_content+edx], al
+    dec word [cursor]
+
+    xor edx, edx
+
+
+    mov dx, word [terminal_cursor]
+    cmp byte [terminal_content+edx], 10
+
+    je .backspace_newline
+    mov ah, [global_color]
+    mov al, 32
+    call write_char
+    .after_backspace_newline:
+    
+    mov byte [terminal_content+edx], 0
+
+
+
+
+
+
     jmp .after
     .after:
-    
-    mov dx, word [terminal_offset]
-    add dx, word [terminal_cursor]
-    mov word [cursor], dx
+
 
     pop edx
+    ret
+
+move_back_while_space:
+    push eax
+
+    xor eax, eax
+.loop:
+    mov ax, word [cursor]
+    cmp byte [virtual_terminal+eax*2], 0xFF
+    je .after
+    dec word [cursor]
+    jmp .loop
+.after:
+    mov byte [virtual_terminal+eax*2], 32
+    pop eax
     ret
 
 read_char:
