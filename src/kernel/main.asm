@@ -4,7 +4,7 @@
 ;;; \/ MAIN \/ ;;;
 ;;;;;;;;;;;;;;;;;;
 global_color: db 0x0A
-welcome_msg:  db "Made by: F1L1P and Rilax",10,10,"Modex 32 bit prot-26022024 (proteted mode edition)",10,"Copyright (C) 2020-2024r.",10,10,0
+welcome_msg:  db "Made by: F1L1P and Rilax",10,"negro",10,"Modex 32 bit prot-26022024 (proteted mode edition)",10,"Copyright (C) 2020-2024r.",10,10,0
 terminal_msg: db "#> ",0
 
 memmory_dump:
@@ -69,20 +69,41 @@ main: ; main loop
     call clear_screen
     mov esi, welcome_msg
     call write_buffer
-    mov esi, terminal_msg
-    call write_buffer
 
 .loop:
 
-    call update_screen
+    mov esi, terminal_msg
+    call write_buffer
+    call read_buffer
 
-    call terminal_handle_key
+    cmp word[read_cursor], 0
+    jne .run_command
 
+.after:
     jmp .loop
+
+.run_command:
+    call run_command
+    jmp .after
 
     cli
     hlt ; End main loop
 
+
+run_command:
+    mov esi, invalid_command
+    call write_buffer
+    ret
+
+clear_command:
+    mov ah, [global_color]
+    call clear_screen
+    ret
+
+clear_cmd: db 'clear'
+clear_cmd_len equ $-clear_cmd
+
+invalid_command: db 'invalid command', 10 , 0
 
 ; disk byte table!
 disk_num:     db 0
@@ -90,13 +111,10 @@ cylinder_num: db 0
 sector_num:   db 0
 head_num:     db 0
 
-; Screen buffer address!
-ScreenBuffer  equ 0xB8000
-
 ; Include core and drivers!
 %include "drivers/vga.asm"
 %include "drivers/ps2_keyboard.asm"
-%include "core/print.asm"
+%include "core/io.asm"
 ;;;;;;;;;;;;;;;;;;
 ;;; /\ MAIN /\ ;;;
 ;;;;;;;;;;;;;;;;;;

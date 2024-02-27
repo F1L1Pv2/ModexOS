@@ -1,6 +1,12 @@
 bits 32
 
 update_cursor:
+    ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;  funkcja służąca do zaktualizowania ;;
+    ;;     pozycji kursora na ekranie      ;;
+    ;;          nowa pozycja jest          ;;
+    ;;        brana z word [cursor]        ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;F1L1P;;
     push eax
     push ebx
     push edx
@@ -36,7 +42,7 @@ clear_screen:
         cmp edi, 80*25
         jge .after
 
-        mov word [virtual_terminal+edi*2], ax
+        mov word [ScreenBuffer+edi*2], ax
 
         inc edi
 
@@ -47,6 +53,12 @@ clear_screen:
         ret
 
 new_line:
+    ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;  funkcja służąca do zrobienia nowej ;;
+    ;;      lini na ekranie jeżeli jest    ;;
+    ;;         wymagane ekran będzie       ;;
+    ;;            scrolować w dół          ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;F1L1P;;
     push eax
     push ecx
     push edx
@@ -59,9 +71,42 @@ new_line:
     sub word [cursor], dx
     add word [cursor], 80
 
+    cmp word [cursor], 80*25
+    jge .scroll_down
+    jmp .after
+
+.scroll_down:
+    call scroll_down
+.after:
     pop edx
     pop ecx
     pop eax
+    ret
+
+scroll_down:
+    ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;  funkcja do scrolownia 1 raz w dół  ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;F1L1P;;
+    mov edx, 0
+.loop:
+    cmp edx, 80*24
+    jge .blank_loop
+    mov ax, word [ScreenBuffer+edx*2+(80*2)]
+    mov word [ScreenBuffer+edx*2], ax
+
+    inc edx
+    jmp .loop
+.blank_loop:
+    cmp edx, 80*25
+    jge .after
+    mov ah, [global_color]
+    mov al, 32
+    mov word [ScreenBuffer+edx*2], ax
+
+    inc edx
+    jmp .blank_loop
+.after:
+    sub word [cursor], 80
     ret
 
 backspace:
@@ -83,77 +128,11 @@ backspace:
         pop eax
         ret
 
-write_buffer:
-    ; input color in ah
-    ; input buffer in esi
-
-    push eax
-    push esi
-    push edx
-
-    cld
-    .loop:
-        lodsb
-        or al, al
-        jz .after
-
-        cmp al, 10
-        je .new_line
-        
-        call write_char
-        inc word [cursor]
-
-        jmp .loop
-    .after:
-        jmp .exit
-
-    .new_line:
-        call new_line
-        jmp .loop
-
-    .exit:
-        pop edx
-        pop esi
-        pop eax
-        ret
-
-write_char:
-    push edi
-
-    mov edi, dword [cursor]
-    mov word [virtual_terminal+edi*2], ax
-
-    pop edi
-    ret
-
-
-update_screen:
-    push eax
-    mov esi, 0
-.loop:
-    cmp esi, 80*25*2
-    jge .after
-    mov al, byte [virtual_terminal+esi]
-    cmp al, byte [ScreenBuffer+esi]
-    je .end_loop
-    mov byte [ScreenBuffer+esi], al
-.end_loop:
-    inc esi
-    jmp .loop
-.after:
-    call update_cursor
-    pop eax
-    ret
-
-
 write_len: dw 0
 cursor: dd 0
-times 16 db 0xFE
-virtual_terminal: times(80*25) dw 0
-
-terminal_offset:              dw 0
-terminal_content: times 80*25 db 0
-terminal_cursor:              dw 0
 
 vga_history: times (10*80*25)+1 db 0
 vga_history_len equ $ - vga_history - 1
+
+; Screen buffer address!
+ScreenBuffer  equ 0xB8000
