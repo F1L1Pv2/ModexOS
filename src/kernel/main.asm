@@ -219,6 +219,7 @@ sector_num:   db 0
 head_num:     db 0
 
 ; Include core and drivers!        
+%include "../eastereggs/valentine.asm"
 %include "core/initial_tools.asm"  
 %include "drivers/ps2_keyboard.asm"
 %include "drivers/vga.asm"         
