@@ -87,7 +87,14 @@ scroll_down:
     ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;;  funkcja do scrolownia 1 raz w dół  ;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;F1L1P;;
-    mov edx, 0
+    push eax
+    push edx
+
+    mov dx, 80
+    cmp dx, word [cursor]
+    jg .exit
+
+    xor edx, edx
 .loop:
     cmp edx, 80*24
     jge .blank_loop
@@ -100,39 +107,25 @@ scroll_down:
     cmp edx, 80*25
     jge .after
     mov ah, [global_color]
-    mov al, 32
+    mov al, ' '
     mov word [ScreenBuffer+edx*2], ax
 
     inc edx
     jmp .blank_loop
 .after:
     sub word [cursor], 80
+.exit:
+    pop edx
+    pop eax
     ret
 
-backspace:
-    push eax
-    push ebx
+scroll_up:
+    ret
 
-    mov bx, word [write_len]
-    test bx, bx
-    jz .exit
-
-    dec word [cursor]
-    mov ah, 0x0a
-    mov al, ' '
-    call write_char
-
-    dec word [write_len]
-    .exit:
-        pop ebx
-        pop eax
-        ret
-
-write_len: dw 0
 cursor: dd 0
 
-vga_history: times (10*80*25)+1 db 0
-vga_history_len equ $ - vga_history - 1
+vga_history: times 10*80*25 db 0
+vga_history_len equ $ - vga_history
 
 ; Screen buffer address!
 ScreenBuffer  equ 0xB8000

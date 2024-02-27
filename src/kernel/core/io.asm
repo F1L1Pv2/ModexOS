@@ -220,24 +220,24 @@ write_buffer:
     push edx
 
     cld
-    .loop:
-        lodsb
-        or al, al
-        jz .after
+.loop:
+    lodsb
+    or al, al
+    jz .after
 
-        cmp al, 10
-        je .new_line
-        
-        call write_char
-        inc word [cursor]
+    cmp al, 10
+    je .new_line
+    
+    call write_char
+    inc word [cursor]
 
-        jmp .loop
-    .after:
-        jmp .exit
+    jmp .loop
+.after:
+    jmp .exit
 
-    .new_line:
-        call new_line
-        jmp .loop
+.new_line:
+    call new_line
+    jmp .loop
 
 .exit:
     pop edx
@@ -248,6 +248,11 @@ write_buffer:
 
 write_char:
     push edi
+
+    cmp word [cursor], 80*25
+    jnge .after
+    call scroll_down
+.after:
 
     mov edi, dword [cursor]
     mov word [ScreenBuffer+edi*2], ax

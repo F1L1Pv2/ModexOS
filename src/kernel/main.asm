@@ -9,7 +9,7 @@
 
 global_color: db 0x0a
 welcome_msg:  db "Made by: F1L1P and Rilax",10,10
-              db "System Modex 32 bit prot-",compile_day,compile_month,compile_year," (proteted mode edition)",10
+              db "System MODEX prot-",compile_day,compile_month,compile_year," 32-bits",10
               db "Copyright (C) 2020-",compile_year,"r.",10,10,0
 terminal_msg: db "#> ",0
 
