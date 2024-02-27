@@ -3,8 +3,12 @@
 ;;;;;;;;;;;;;;;;;;
 ;;; \/ MAIN \/ ;;;
 ;;;;;;;;;;;;;;;;;;
+%substr compile_day __DATE__ 9,2
+%substr compile_month __DATE__ 6,2
+%substr compile_year __DATE__ 1,4
+
 global_color: db 0x0A
-welcome_msg:  db "Made by: F1L1P and Rilax",10,10,"Modex 32 bit prot-27022024 (proteted mode edition)",10,"Copyright (C) 2020-2024r.",10,10,0
+welcome_msg:  db "Made by: F1L1P and Rilax",10,10,"Modex 32 bit prot-",compile_day,compile_month,compile_year," (proteted mode edition)",10,"Copyright (C) 2020-",compile_year,"r.",10,10,0
 terminal_msg: db "#> ",0
 
 memmory_dump:
