@@ -4,7 +4,7 @@
 ;;; \/ MAIN \/ ;;;
 ;;;;;;;;;;;;;;;;;;
 global_color: db 0x0A
-welcome_msg:  db "Made by: F1L1P and Rilax",10,"negro",10,"Modex 32 bit prot-26022024 (proteted mode edition)",10,"Copyright (C) 2020-2024r.",10,10,0
+welcome_msg:  db "Made by: F1L1P and Rilax",10,10,"Modex 32 bit prot-26022024 (proteted mode edition)",10,"Copyright (C) 2020-2024r.",10,10,0
 terminal_msg: db "#> ",0
 
 memmory_dump:
