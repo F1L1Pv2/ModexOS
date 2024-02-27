@@ -1,4 +1,8 @@
 memmory_dump:
+    push esi
+    push edx
+    push eax
+
     [bits 32]
     mov esi, memmory_table
 .loop:
@@ -30,6 +34,24 @@ memmory_dump:
 
 .after:
 
+    call new_line
+    mov eax, dword [avaliable_ram]
+    xor edx, edx
+    mov esi, 1024*1024
+    div esi
+    call binary_decimal
+    mov ah, [global_color]
+    mov al, 'M'
+    call write_char
+    inc word [cursor]
+    mov al, 'B'
+    call write_char
+    call new_line
+    call new_line
+
+    pop eax
+    pop edx
+    pop esi
     ret
 
 calculate_ram:

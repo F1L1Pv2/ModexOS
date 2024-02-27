@@ -20,6 +20,7 @@ main: ; main loop
     mov ds, ax
     mov ss, ax
 
+    call calculate_ram
 
     mov ah, [global_color]
     call clear_screen
@@ -27,7 +28,7 @@ main: ; main loop
     call write_buffer
 
 .loop:
-
+    mov ah, [global_color]
     mov esi, terminal_msg
     call write_buffer
     call read_buffer
@@ -157,6 +158,7 @@ run_command:
     jmp .after
 
     .memdup_command:
+    call new_line
     call memmory_dump
     jmp .after
 
