@@ -300,8 +300,8 @@ read_buffer:
     mov ah, [global_color]
     call write_char
     inc word [cursor]
-    
     inc word [read_cursor]
+    
     jmp .after
 
     .left_arrow:

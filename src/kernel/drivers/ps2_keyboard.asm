@@ -28,6 +28,11 @@ ps2_read_char:
     je .turn_on_shift
     cmp al, 0xAA
     je .turn_off_shift
+
+    cmp al, 0x36
+    je .turn_on_shift
+    cmp al, 0xB6
+    je .turn_off_shift
     
     mov edi, eax
     and edi, 0xFF
