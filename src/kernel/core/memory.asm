@@ -29,9 +29,9 @@ write_in_correct_size:
     push ecx
     push edx
 
-    mov ecx, 1000
+    mov ecx, 1024
 
-    cmp eax, 1000
+    cmp eax, 1024
     jge .kilo_bytes
 
 .bytes:
@@ -48,7 +48,7 @@ write_in_correct_size:
     mov edx, 0
     div ecx
 
-    cmp eax, 1000
+    cmp eax, 1024
     jge .mega_bytes
 
 
@@ -67,7 +67,7 @@ write_in_correct_size:
     mov edx, 0
     div ecx
 
-    cmp eax, 1000
+    cmp eax, 1024
     jge .giga_bytes
 
 
