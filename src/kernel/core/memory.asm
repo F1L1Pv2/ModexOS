@@ -18,6 +18,82 @@ memmory_types_table:
 memdup_top_msg: db "Base Address       | Length             | Type",10,0
 memdup_entry: db "0x",0
 
+write_in_correct_size:
+    push eax
+    push ecx
+    push edx
+
+    cmp eax, 1024
+    jge .kilo_bytes
+
+.bytes:
+    call binary_decimal
+    mov ah, [global_color]
+    mov al, 'B'
+    call write_char
+    inc word [cursor]
+    inc word [cursor]
+
+    jmp .after
+
+.kilo_bytes:
+    mov edx, 0
+    mov ecx, 1024
+    div ecx
+
+    cmp eax, 1024
+    jge .mega_bytes
+
+
+    call binary_decimal
+    mov ah, [global_color]
+    mov al, 'K'
+    call write_char
+    inc word [cursor]
+    mov al, 'B'
+    call write_char
+    inc word [cursor]
+
+    jmp .after
+
+.mega_bytes:
+    mov edx, 0
+    mov ecx, 1024
+    div ecx
+
+    cmp eax, 1024
+    jge .giga_bytes
+
+
+
+    call binary_decimal
+    mov ah, [global_color]
+    mov al, 'M'
+    call write_char
+    inc word [cursor]
+    mov al, 'B'
+    call write_char
+    inc word [cursor]
+    
+    jmp .after
+
+.giga_bytes:
+    call binary_decimal
+    mov ah, [global_color]
+    mov al, 'G'
+    call write_char
+    inc word [cursor]
+    mov al, 'B'
+    call write_char
+    inc word [cursor]
+.after:
+
+    pop edx
+    pop ecx
+    pop eax
+    ret
+
+
 memmory_dump:
     [bits 32]
     push esi
@@ -34,6 +110,9 @@ memmory_dump:
     test cx, cx
     jz .after
 
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;        Base offset        ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     push esi
     mov esi, memdup_entry
     call write_buffer
@@ -43,45 +122,81 @@ memmory_dump:
     call dump_xbytes_big_endian
 
     mov ah, [global_color]
-    ; mov al, '|'
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;                           ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
     push esi
     mov esi, memmory_between_msg
     call write_buffer
     pop esi
-    ; inc word [cursor]
+    
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;         Length            ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; push esi
+    ; mov esi, memdup_entry
+    ; call write_buffer
+    ; pop esi
 
-    push esi
-    mov esi, memdup_entry
-    call write_buffer
-    pop esi
-
-    call dump_xbytes_big_endian
-
-    push esi
-    mov esi, memmory_between_msg
-    call write_buffer
-    pop esi
-
-    ; mov edx, 4
     ; call dump_xbytes_big_endian
-    ; call write_char
-    ; inc word [cursor]
+    mov eax, dword [esi]
+    call write_in_correct_size
 
+
+    mov ah, [global_color]
+    push esi
+
+    mov esi, 18 - 2
+    sub esi, dword [bindec_wrote]
+    mov al, 32
+    .fill:
+        call write_char
+        inc word [cursor]
+        dec esi
+        test esi, esi
+        jnz .fill
+
+    pop esi
+    add esi, 8
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;                           ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+
+    push esi
+    mov esi, memmory_between_msg
+    call write_buffer
+    pop esi
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;          Type             ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     mov eax, dword [esi]
     push esi
-    ; call binary_decimal
     mov esi, dword [memmory_types_table+eax*4]
     mov ah, byte [global_color]
     call write_buffer
 
+
     pop esi
     add esi, 4
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;                           ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
 
-    ; call dump_xbytes_big_endian
-    ; add esi, 3
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;    ACPI 3.0 (not used)    ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
     add esi, 4
     call new_line
-
+    
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;                           ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
 
     dec cx
     jmp .loop

@@ -53,6 +53,8 @@ dump_xbytes_big_endian:
     pop edx
     ret
 
+bindec_wrote: dd 0
+
 binary_decimal:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; funkcja binary to decimal (16-bits) ;;
@@ -81,7 +83,7 @@ binary_decimal:
 
     test ecx, ecx
     jnz .loop
-
+    mov dword [bindec_wrote], ebx
 .flip:
     pop eax
     mov ah, [global_color]
