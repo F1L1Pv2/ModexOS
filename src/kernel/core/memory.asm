@@ -17,6 +17,7 @@ memmory_types_table:
 
 memdup_top_msg: db "Base Address       | Length             | Type",10,0
 memdup_entry: db "0x",0
+memdump_total_mem_msg: db "Total Useable Memory: ",0
 
 write_in_correct_size:
     push eax
@@ -205,17 +206,10 @@ memmory_dump:
 .after:
 
     call new_line
+    mov esi, memdump_total_mem_msg
+    call write_buffer
     mov eax, dword [avaliable_ram]
-    xor edx, edx
-    mov esi, 1024*1024
-    div esi
-    call binary_decimal
-    mov ah, [global_color]
-    mov al, 'M'
-    call write_char
-    inc word [cursor]
-    mov al, 'B'
-    call write_char
+    call write_in_correct_size
     call new_line
     call new_line
 
