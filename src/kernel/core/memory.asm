@@ -17,14 +17,21 @@ memmory_types_table:
 
 memdup_top_msg: db "Base Address       | Length             | Type",10,0
 memdup_entry: db "0x",0
-memdump_total_mem_msg: db "Total Useable Memory: ",0
+memdump_total_mem_msg: db "Total Usable Memory: ",0
 
 write_in_correct_size:
+
+    ;
+    ;   TODO: when value is 3GB it breaks
+    ;
+
     push eax
     push ecx
     push edx
 
-    cmp eax, 1024
+    mov ecx, 1000
+
+    cmp eax, 1000
     jge .kilo_bytes
 
 .bytes:
@@ -39,10 +46,9 @@ write_in_correct_size:
 
 .kilo_bytes:
     mov edx, 0
-    mov ecx, 1024
     div ecx
 
-    cmp eax, 1024
+    cmp eax, 1000
     jge .mega_bytes
 
 
@@ -59,10 +65,9 @@ write_in_correct_size:
 
 .mega_bytes:
     mov edx, 0
-    mov ecx, 1024
     div ecx
 
-    cmp eax, 1024
+    cmp eax, 1000
     jge .giga_bytes
 
 
@@ -79,6 +84,9 @@ write_in_correct_size:
     jmp .after
 
 .giga_bytes:
+    mov edx, 0
+    div ecx
+
     call binary_decimal
     mov ah, [global_color]
     mov al, 'G'
@@ -209,6 +217,7 @@ memmory_dump:
     mov esi, memdump_total_mem_msg
     call write_buffer
     mov eax, dword [avaliable_ram]
+    inc eax
     call write_in_correct_size
     call new_line
     call new_line
