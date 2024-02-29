@@ -351,7 +351,7 @@ read_buffer:
     jmp .after
 
     .backspace_newline:
-    mov dl, 2
+    mov dl, 0xFF
     call read_move_back_while_not_x
     jmp .after_backspace_newline
 
@@ -421,6 +421,8 @@ read_move_back_while_not_x:
 
     xor eax, eax
 .loop:
+    cmp word [cursor], 0
+    jle .after
     mov ax, word [cursor]
     cmp byte [ScreenBuffer+eax*2], dl
     je .after
