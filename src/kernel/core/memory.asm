@@ -18,6 +18,7 @@ memmory_types_table:
 memdup_top_msg: db "Base Address       | Length             | Type",10,0
 memdup_entry: db "0x",0
 memdump_total_mem_msg: db "Total Usable Memory: ",0
+memdump_total_page_msg: db "Number of usable Pages: ",0
 
 write_in_correct_size:
 
@@ -220,6 +221,14 @@ memmory_dump:
     inc eax
     call write_in_correct_size
     call new_line
+
+    mov ah, [global_color]
+    mov esi, memdump_total_page_msg
+    call write_buffer
+    mov eax, dword [max_page_count]
+    call binary_decimal
+    call new_line
+
     call new_line
 
     pop eax
@@ -246,3 +255,46 @@ calculate_ram:
     ret
 
 avaliable_ram: dd 0
+
+setup_physical_alloc:
+    push edi
+    push esi
+    push edx
+    push ecx
+
+    mov esi, memmory_table
+    mov edi, 0
+.loop:
+
+    mov eax, dword [esi]
+    cmp eax, 0x100000
+    je .found_entry
+
+    add esi, 8
+    add esi, 8
+    add esi, 4
+    add esi, 4
+
+    inc edi
+    cmp edi, memmory_table_count
+    je .after
+    jmp .loop
+
+.found_entry:
+    add esi, 8
+    mov eax, dword [esi]
+    mov edx, 0
+    mov ecx, 4096
+    div ecx
+    mov dword [max_page_count], eax
+.after:
+
+    pop ecx
+    pop edx
+    pop esi
+    pop edi
+    ret
+
+max_page_count: dd 0
+
+pages_bitmap: times 131072 db 0

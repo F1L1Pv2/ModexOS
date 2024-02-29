@@ -21,6 +21,7 @@ main: ; main loop
     mov ss, ax
 
     call calculate_ram
+    call setup_physical_alloc
 
     mov ah, [global_color]
     call clear_screen
