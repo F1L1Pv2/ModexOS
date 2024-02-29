@@ -177,6 +177,8 @@ start:
     mul cx
 
     add bx, ax ; update buffer offset
+    jc .fix_cluster
+.after_fix:
 
     ; compute location of next cluster
     mov ax, [kernel_cluster]
@@ -210,6 +212,11 @@ start:
     cli                                 ; disable interrupts, this way CPU can't get out of "halt" state
     hlt
 
+.fix_cluster:
+    mov ax, es
+    add ax, 0x1000
+    mov es, ax
+    jmp .after_fix
 
 ;
 ; Error handlers
@@ -341,9 +348,9 @@ disk_reset:
     ret
 
 
-msg_loading:            db 'Loading', ENDL, 0
-msg_read_failed:        db 'Read failed', ENDL, 0
-msg_kernel_not_found:   db 'Sys not found', ENDL, 0
+msg_loading:            db 'Load', ENDL, 0
+msg_read_failed:        db 'Readfail', ENDL, 0
+msg_kernel_not_found:   db 'Sysnofound', ENDL, 0
 file_kernel_bin:        db 'KERNEL  BIN'
 first_data_sector: dw 0
 root_dir_size dw 0
