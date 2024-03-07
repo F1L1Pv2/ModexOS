@@ -1,24 +1,16 @@
-%include "core/initial_setup.asm"
+org 0x100000
+bits 32
 
 ;;;;;;;;;;;;;;;;;;
 ;;; \/ MAIN \/ ;;;
 ;;;;;;;;;;;;;;;;;;
-%substr compile_day __DATE__ 9,2
-%substr compile_month __DATE__ 6,2
-%substr compile_year __DATE__ 1,4
-
-global_color: db 0x0a
-welcome_msg:  db "Made by: F1L1P and Rilax",10,10
-              db "System MODEX prot-",compile_day,compile_month,compile_year," 32-bits",10
-              db "Copyright (C) 2020-",compile_year,"r.",10,10,0
-terminal_msg: db "#> ",0
-
 main: ; main loop
     [bits 32]
-
-    mov ax, 0x10
-    mov ds, ax
-    mov ss, ax
+    mov dword [memmory_table_ptr], eax
+    add eax, 20*24
+    mov dword [memmory_table_end_ptr], eax
+    mov dword [memmory_table_count], ebx
+    mov dword [kernel_size_in_bytes], edx
 
     call calculate_ram
     call setup_physical_alloc
@@ -176,6 +168,23 @@ clear_command:
     call clear_screen
     ret
 
+memmory_table_ptr: dd 0
+memmory_table_end_ptr: dd 0
+memmory_table_count: dd 0
+
+kernel_size_in_bytes: dd 0
+
+%substr compile_day __DATE__ 9,2
+%substr compile_month __DATE__ 6,2
+%substr compile_year __DATE__ 1,4
+
+global_color: db 0x0a
+welcome_msg:  db "Made by: F1L1P and Rilax",10,10
+              db "System MODEX prot-",compile_day,compile_month,compile_year," 32-bits",10
+              db "Copyright (C) 2020-",compile_year,"r.",10,10,0
+terminal_msg: db "#> ",0
+
+
 clear_cmd:    db "clear", 0 ; Clear command
 cls_cmd:      db "cls",   0 ; Clear command
 help_command: db "help",  0 ; Help command
@@ -222,8 +231,7 @@ head_num:     db 0
 ; Include core and drivers!        
 %include "../eastereggs/valentine.asm"
 %include "core/initial_tools.asm"  
-%include "drivers/ps2_keyboard.asm"
-%include "drivers/vga.asm"         
+%include "ps2_keyboard.asm"      
 ;;;;;;;;;;;;;;;;;;
 ;;; /\ MAIN /\ ;;;
 ;;;;;;;;;;;;;;;;;;

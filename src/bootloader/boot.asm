@@ -1,9 +1,5 @@
-org 0x7C00
+org 0x7c00
 bits 16
-
-
-%define ENDL 0x0D, 0x0A
-
 
 ;
 ; FAT16 header
@@ -40,213 +36,47 @@ ebr_system_id:              times 8 db 0         ; 8 bytes
 ;
 
 start:
-    ; setup data segments
-    mov ax, 0           ; can't set ds/es directly
-    mov ds, ax
-    mov es, ax
-    
-    ; setup stack
-    mov ss, ax
-    mov sp, 0x7C00              ; stack grows downwards from where we are loaded in memory
 
-    ; some BIOSes might start us at 07C0:0000 instead of 0000:7C00, make sure we are in the
-    ; expected location
-    push es
-    push word .after
-    retf
+mov ax, 0
+mov ds, ax
+mov es, ax
+
+mov ss, ax
+mov sp, 0x7C00
+
+push es
+push word .after
+retf
 
 .after:
 
-    ; read something from floppy disk
-    ; BIOS should set DL to drive number
-    mov [ebr_drive_number], dl
-
-    ; show loading message
-    mov si, msg_loading
+    mov si, stage1_msg
     call puts
 
-    ; read drive parameters (sectors per track and head count),
-    ; instead of relying on data on formatted disk
-    push es
-    mov ah, 08h
-    int 13h
-    jc floppy_error
-    pop es
-
-    and cl, 0x3F                        ; remove top 2 bits
-    xor ch, ch
-    mov [bdb_sectors_per_track], cx     ; sector count
-
-    inc dh
-    mov [bdb_heads], dh                 ; head count
-
-    ; compute LBA of root directory = reserved + fats * sectors_per_fat
-    ; note: this section can be hardcoded
-    mov ax, [bdb_sectors_per_fat]
-    mov bl, byte [bdb_fat_count]
-    xor bh, bh
-    mul bx                              ; ax = (fats * sectors_per_fat)
-    add ax, [bdb_reserved_sectors]      ; ax = LBA of root directory
-    push ax
-
-    ; compute size of root directory = (32 * number_of_entries) / bytes_per_sector
-    mov ax, [bdb_dir_entries_count]
-    shl ax, 5                           ; ax *= 32
-    xor dx, dx                          ; dx = 0
-    div word [bdb_bytes_per_sector]     ; number of sectors we need to read
-
-    test dx, dx                         ; if dx != 0, add 1
-    jz .root_dir_after
-    inc ax                              ; division remainder != 0, add 1
-                                        ; this means we have a sector only partially filled with entries
-.root_dir_after:
-
-    ; read root directory
-    mov byte  [root_dir_size], al
-    mov cl, al                          ; cl = number of sectors to read = size of root directory
-    pop ax                              ; ax = LBA of root directory
-    mov dl, byte [ebr_drive_number]          ; dl = drive number (we saved it previously)
-    mov bx, buffer                      ; es:bx = buffer
-    call disk_read
-
-    ; search for kernel.bin
-    xor bx, bx
-    mov di, buffer
-
-.search_kernel:
-    mov si, file_kernel_bin
-    mov cx, 11                          ; compare up to 11 characters
-    push di
-    repe cmpsb
-    pop di
-    je .found_kernel
-
-    add di, 32
-    inc bx
-    cmp bx, [bdb_dir_entries_count]
-    jl .search_kernel
-
-    ; kernel not found
-    jmp kernel_not_found_error
-
-.found_kernel:
-
-    ; di should have the address to the entry
-    mov ax, [di + 26]                   ; first logical cluster field (offset 26)
-    mov [kernel_cluster], ax
-
-    ; load FAT from disk into memory
-    mov ax, [bdb_reserved_sectors]
-    mov bx, buffer
-    mov cl, byte [bdb_sectors_per_fat]
-    mov dl, byte [ebr_drive_number]
-    call disk_read
-
-    ; calculate first data sector
-
-    mov bl, byte [bdb_reserved_sectors]
-    mov al, byte [bdb_fat_count]
-    mov cl, byte [bdb_sectors_per_fat]
-    mul cl
-    add al, bl
-    add al, byte [root_dir_size]
-    mov byte [first_data_sector], al
-
-    ; read kernel and process FAT chain
-    mov bx, KERNEL_LOAD_SEGMENT
+    mov al, 6
+    mov bx, STAGE2_LOAD_SEGMENT
     mov es, bx
-    mov bx, KERNEL_LOAD_OFFSET
-
-
-.load_kernel_loop:
-    
-    ; Read next cluster
-    mov ax, [kernel_cluster]
-    sub al, 2
-    mov cl, byte [bdb_sectors_per_cluster]
-    mul cl
-
-    mov dx, [first_data_sector]
-    add ax, dx
-
-    mov dl, byte [ebr_drive_number]
-    call disk_read
-
-    xor dx, dx
-    mov ax, [bdb_bytes_per_sector]
-    mul cx
-
-    add bx, ax ; update buffer offset
-    jc .fix_cluster
-.after_fix:
-
-    ; compute location of next cluster
-    mov ax, [kernel_cluster]
+    mov bx, STAGE2_LOAD_OFFSET
+    mov ch, 0
     mov cl, 2
-    mul cl
+    mov dh, 0
 
-    mov si, buffer
-    add si, ax
-    mov ax, [ds:si]                     ; read entry from FAT table at index ax
+    mov ah, 2
+    int 0x13
 
-.next_cluster_after:
-    cmp ax, 0xFFF8                      ; end of chain
-    jae .read_finish
+    mov bx, STAGE2_LOAD_SEGMENT
+    mov ds, bx
+    jmp STAGE2_LOAD_SEGMENT:STAGE2_LOAD_OFFSET
 
-    mov [kernel_cluster], ax
-    jmp .load_kernel_loop
+    mov ah, 0x0e
+    mov al, 'N'
+    mov bl, 0
+    int 0x10
 
-.read_finish:
-    
-    ; jump to our kernel
-    mov dl, byte [ebr_drive_number]     ; boot device in dl
 
-    mov ax, KERNEL_LOAD_SEGMENT         ; set segment registers
-    mov ds, ax
-    mov es, ax
-    
-    jmp KERNEL_LOAD_SEGMENT:KERNEL_LOAD_OFFSET
-
-    jmp wait_key_and_reboot             ; should never happen
-
-    cli                                 ; disable interrupts, this way CPU can't get out of "halt" state
+    cli
     hlt
 
-.fix_cluster:
-    mov ax, es
-    add ax, 0x1000
-    mov es, ax
-    jmp .after_fix
-
-;
-; Error handlers
-;
-
-floppy_error:
-    mov si, msg_read_failed
-    call puts
-    jmp wait_key_and_reboot
-
-kernel_not_found_error:
-    mov si, msg_kernel_not_found
-    call puts
-    jmp wait_key_and_reboot
-
-wait_key_and_reboot:
-    mov ah, 0
-    int 16h                     ; wait for keypress
-    jmp 0FFFFh:0                ; jump to beginning of BIOS, should reboot
-
-.halt:
-    cli                         ; disable interrupts, this way CPU can't get out of "halt" state
-    hlt
-
-
-;
-; Prints a string to the screen
-; Params:
-;   - ds:si points to string
-;
 puts:
     ; save registers we will modify
     push si
@@ -270,97 +100,10 @@ puts:
     pop si    
     ret
 
-lba_to_chs:
+stage1_msg: db "STAGE1 bootloader loading STAGE2",13,10,0
 
-    push ax
-    push dx
-
-    xor dx, dx                          ; dx = 0
-    div word [bdb_sectors_per_track]    ; ax = LBA / SectorsPerTrack
-                                        ; dx = LBA % SectorsPerTrack
-
-    inc dx                              ; dx = (LBA % SectorsPerTrack + 1) = sector
-    mov cx, dx                          ; cx = sector
-
-    xor dx, dx                          ; dx = 0
-    div word [bdb_heads]                ; ax = (LBA / SectorsPerTrack) / Heads = cylinder
-                                        ; dx = (LBA / SectorsPerTrack) % Heads = head
-    mov dh, dl                          ; dh = head
-    mov ch, al                          ; ch = cylinder (lower 8 bits)
-    shl ah, 6
-    or cl, ah                           ; put upper 2 bits of cylinder in CL
-
-    pop ax
-    mov dl, al                          ; restore DL
-    pop ax
-    ret
-
-disk_read:
-
-    push ax                             ; save registers we will modify
-    push bx
-    push cx
-    push dx
-    push di
-
-    push cx                             ; temporarily save CL (number of sectors to read)
-    call lba_to_chs                     ; compute CHS
-    pop ax                              ; AL = number of sectors to read
-    
-    mov ah, 02h
-    mov di, 3                           ; retry count
-
-.retry:
-    pusha                               ; save all registers, we don't know what bios modifies
-    stc                                 ; set carry flag, some BIOS'es don't set it
-    int 13h                             ; carry flag cleared = success
-    jnc .done                           ; jump if carry not set
-
-    ; read failed
-    popa
-    call disk_reset
-
-    dec di
-    test di, di
-    jnz .retry
-
-.fail:
-    ; all attempts are exhausted
-    jmp floppy_error
-
-.done:
-    popa
-
-    pop di
-    pop dx
-    pop cx
-    pop bx
-    pop ax                             ; restore registers modified
-    ret
-
-disk_reset:
-    pusha
-    mov ah, 0
-    stc
-    int 13h
-    jc floppy_error
-    popa
-    ret
-
-
-msg_loading:            db 'Load', ENDL, 0
-msg_read_failed:        db 'Readfail', ENDL, 0
-msg_kernel_not_found:   db 'Sysnofound', ENDL, 0
-file_kernel_bin:        db 'KERNEL  BIN'
-first_data_sector: dw 0
-root_dir_size dw 0
-kernel_cluster:         dw 0
-
-KERNEL_LOAD_SEGMENT     equ 0x2000
-KERNEL_LOAD_OFFSET      equ 0
-
+STAGE2_LOAD_SEGMENT equ 0x2000
+STAGE2_LOAD_OFFSET equ 0x0
 
 times 510-($-$$) db 0
-dw 0AA55h
-
-buffer:
+dw 0xAA55

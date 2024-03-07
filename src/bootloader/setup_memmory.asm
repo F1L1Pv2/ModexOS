@@ -49,6 +49,8 @@ do_e820:
 	stc			; "function unsupported" error exit
 	ret
 
+; memmory_table equ 0x20000 - 20*24
+
 memmory_table: times 20*24 db 0
 memmory_table_len equ ($-memmory_table)
 memmory_table_end equ $

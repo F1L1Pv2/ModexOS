@@ -19,6 +19,7 @@ memdup_top_msg: db "Base Address       | Length             | Type",10,0
 memdup_entry: db "0x",0
 memdump_total_mem_msg: db "Total Usable Memory: ",0
 memdump_total_page_msg: db "Number of usable Pages: ",0
+memdump_kernel_size_msg: db "Kernel size: ",0
 
 write_in_correct_size:
 
@@ -114,7 +115,7 @@ memmory_dump:
     mov esi, memdup_top_msg
     call write_buffer
 
-    mov esi, memmory_table
+    mov esi, dword [memmory_table_ptr]
     mov cx, word[memmory_table_count]
 .loop:
     test cx, cx
@@ -223,6 +224,13 @@ memmory_dump:
     call new_line
 
     mov ah, [global_color]
+    mov esi, memdump_kernel_size_msg
+    call write_buffer
+    mov eax, dword [kernel_size_in_bytes]
+    call write_in_correct_size
+    call new_line
+
+    mov ah, [global_color]
     mov esi, memdump_total_page_msg
     call write_buffer
     mov eax, dword [max_page_count]
@@ -238,9 +246,9 @@ memmory_dump:
     ret
 
 calculate_ram:
-    mov esi, memmory_table
+    mov esi, dword [memmory_table_ptr]
 .loop:
-    cmp esi, memmory_table_end
+    cmp esi, dword [memmory_table_end_ptr]
     jge .after
 
     add esi, 24
@@ -262,7 +270,7 @@ setup_physical_alloc:
     push edx
     push ecx
 
-    mov esi, memmory_table
+    mov esi, dword [memmory_table_ptr]
     mov edi, 0
 .loop:
 
