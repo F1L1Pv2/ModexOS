@@ -1,9 +1,4 @@
 %include "initial_setup.asm"
-%include "boot_io.asm"
-%include "ata.asm"
-%include "common.asm"
-%include "fat16.asm"
-
 
 bdb_oem                         equ 0x7c03 ; 8  bytes
 bdb_bytes_per_sector            equ 0x7c0b ; 2  bytes
@@ -67,6 +62,29 @@ main:
     mov esi, kernel_not_found_msg
     call panic
 
+panic:
+    push esi
+    push eax
+
+    mov ah, 0x04
+    push esi
+    mov esi, panic_msg
+    call write_buffer
+
+    pop esi
+    call write_buffer
+
+    pop eax
+    pop esi
+
+    cli
+    hlt
+
+
+GLOBAL_COLOR equ 0x0a
+
+panic_msg: db "BOOTLOADER_PANIC: ", 0
+
 stage2_msg: db "STAGE2 bootloader loading KERNEL",10,0
 file_kernel_bin: db 'KERNEL  BIN'
 kernel_not_found_msg: db "kernel.bin not found", 0
@@ -74,5 +92,8 @@ kernel_size_in_bytes: dd 0
 
 KERNEL_LOAD_OFFSET equ 0x100000
 
+%include "boot_io.asm"
+%include "ata.asm"
+%include "fat16.asm"
 
 times (512*6)-($-$$) db 0xFE

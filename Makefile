@@ -17,7 +17,7 @@ $(BUILD_DIR)/bios-htc.img: bootloader kernel stage2
 stage2: $(BUILD_DIR)/stage2.bin
 
 $(BUILD_DIR)/stage2.bin: always
-	$(ASM) $(SRC_DIR)/bootloader/stage2.asm -f bin -o $(BUILD_DIR)/stage2.bin -I $(SRC_DIR)/bootloader -I $(SRC_DIR)/drivers
+	$(ASM) $(SRC_DIR)/bootloader/stage2.asm -f bin -o $(BUILD_DIR)/stage2.bin -I $(SRC_DIR)/bootloader -I $(SRC_DIR)/bootloader_drivers
 
 
 bootloader: $(BUILD_DIR)/bootloader.bin
