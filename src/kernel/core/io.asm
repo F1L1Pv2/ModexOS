@@ -1,5 +1,51 @@
 bits 32
 
+round_up:
+    cmp edx, 0
+    jnz .round_up
+    jmp .after
+.round_up:
+    inc eax
+.after:
+    ret
+
+dump_xbits:
+    ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;    ta funkcja wypisuje x byte'ow    ;; 
+    ;;   z rejestru esi w little_endian    ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;F1L1P;;
+    push edx
+    push eax
+    push ecx
+
+    mov eax, edx
+    xor edx, edx
+    mov ecx, 8
+    div ecx
+    call round_up
+    mov edx, eax
+.loop:
+
+    xor eax, eax
+    mov al, byte [esi]
+
+    call binary_8_pure
+    mov ah, byte [global_color]
+    mov al, 32
+    call write_char
+    inc word [cursor]
+
+    inc esi
+
+    dec edx
+    test edx, edx
+    jnz .loop
+
+    pop ecx
+    pop eax
+    pop edx
+    ret
+
 dump_xbytes_little_endian:
     ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;;    ta funkcja wypisuje x byte'ow    ;; 
@@ -553,6 +599,112 @@ scroll_down:
     ret
 
 scroll_up:
+    ret
+
+binary_8_pure:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; funkcja binary to decimal (8-bits)  ;;
+    ;;           AL to wejsce              ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    push eax
+    push ebx
+
+    mov bl, 128
+    mov ah, 8
+.loop:
+    test ah, ah
+    jz .exit
+
+    mov bh, al
+    and bh, bl
+    shr bl, 1
+    dec ah
+
+    test bh, bh
+    jnz .set_bit
+
+    push eax
+    mov ah, byte [global_color]
+    mov al, '0'
+    call write_char
+    inc word [cursor]
+    pop eax
+
+    jmp .loop
+
+.set_bit:
+    push eax
+    mov ah, byte [global_color]
+    mov al, '1'
+    call write_char
+    inc word [cursor]
+    pop eax
+
+    jmp .loop
+
+.exit:
+    pop ebx
+    pop eax
+    ret
+
+fill_bits:
+    ; al is input / output
+
+    cmp al, 0
+    jz .after
+
+    cmp al, 8
+    jge .overflow
+
+    push ebx
+
+    xor ebx, ebx
+    mov bl, al
+    xor al, al
+
+    sub bl, 8
+    not bl
+    inc bl
+.loop:  
+    shl al, 1
+    inc al
+
+    dec bl
+    jnz .loop
+
+    not al
+
+    pop ebx
+.after:
+    ret
+.overflow:
+    mov al, -1
+    ret
+
+binary_8:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; funkcja binary to decimal (8-bits)  ;;
+    ;;           AL to wejsce              ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    push eax
+    push ebx
+
+    push eax
+    mov ah, byte [global_color]
+    mov al, '0'
+    call write_char
+    inc word [cursor]
+
+    mov ah, byte [global_color]
+    mov al, 'b'
+    call write_char
+    inc word [cursor]
+    pop eax
+
+    call binary_8_pure
+
+    pop ebx
+    pop eax
     ret
 
 cursor: dd 0

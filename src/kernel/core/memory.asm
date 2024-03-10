@@ -20,6 +20,7 @@ memdup_entry: db "0x",0
 memdump_total_mem_msg: db "Total Usable Memory: ",0
 memdump_total_page_msg: db "Number of usable Pages: ",0
 memdump_kernel_size_msg: db "Kernel size: ",0
+memdump_kernel_size_pages_msg: db "Kernel size (pages): ",0
 
 write_in_correct_size:
 
@@ -231,6 +232,13 @@ memmory_dump:
     call new_line
 
     mov ah, [global_color]
+    mov esi, memdump_kernel_size_pages_msg
+    call write_buffer
+    mov eax, dword [kernel_use_page_count]
+    call binary_decimal
+    call new_line
+
+    mov ah, [global_color]
     mov esi, memdump_total_page_msg
     call write_buffer
     mov eax, dword [max_page_count]
@@ -297,12 +305,176 @@ setup_physical_alloc:
     mov dword [max_page_count], eax
 .after:
 
+    ;calculate membit table byte size
+    mov eax, dword [max_page_count] ;allocating bits for bit_map
+    mov edx, 0
+    mov ecx, 8
+    div ecx
+    call round_up
+    mov dword [membit_table_size_bytes], eax
+
+
+    ;calculate how much kernel uses pages
+    mov eax, dword [kernel_size_in_bytes]
+    mov edx, 0
+    mov ecx, 4096
+    div ecx
+    call round_up
+    mov dword [kernel_use_page_count], eax
+
+    ;calculate  how many pages will be allocated at the start of running kernel
+    mov eax, dword [kernel_size_in_bytes]
+    add eax, dword [membit_table_size_bytes]
+    mov edx, 0
+    mov ecx, 4096
+    div ecx
+    call round_up
+    mov dword [initial_allocated_pages], eax
+
+    ;allocate initial pages
+    xor edx, edx
+    mov eax, dword [initial_allocated_pages]
+    mov ecx, 8
+    div ecx
+    push edx
+    mov esi, memmory_bit_map
+.alloc_loop:
+    mov byte [esi], 0xFF
+    inc esi
+    dec eax
+    jnz .alloc_loop
+
+    pop edx
+    mov eax, edx
+    call fill_bits
+    mov byte [esi], al
+
+.exit:
     pop ecx
     pop edx
     pop esi
     pop edi
     ret
 
+alloc_page:
+    ;output in esi adress
+    push eax
+    push ebx
+    push ecx
+    push edx
+
+    xor edx, edx
+.iter_bytes:
+    cmp edx, dword [membit_table_size_bytes]
+    jge .not_enough_memmory
+
+    xor ecx, ecx
+    .iter_bits:
+        cmp ecx, 8
+        jge .after_bits
+
+        mov al, byte [memmory_bit_map+edx]
+
+        mov bl, 0b10000000
+        shr bl, cl
+        
+        and al, bl
+        jz .found_free
+
+        inc ecx
+        jmp .iter_bits
+    .after_bits:
+
+    inc edx
+    jmp .iter_bytes
+
+.found_free:
+    
+    ; allocating free page
+    mov al, byte [memmory_bit_map+edx]
+    mov bl, 0b10000000
+    shr bl, cl
+    or al, bl
+    mov byte [memmory_bit_map+edx], al
+
+    ; mov eax, edx
+    ; call binary_decimal
+    ; call new_line
+    ; mov eax, ecx
+    ; call binary_decimal
+    ; call new_line
+    mov ebx, ecx
+
+    mov eax, edx
+    xor edx, edx
+    mov ecx, 8
+    mul ecx
+
+    add eax, ebx
+
+    mov ecx, 4096
+    mul ecx
+    add eax, 0x100000
+    mov esi, eax
+
+    jmp .after
+.not_enough_memmory:
+    mov esi, not_enough_memmory_msg
+    call panic
+.after:
+
+    pop edx
+    pop ecx
+    pop ebx
+    pop eax
+    ret
+
+free_page:
+    ; input in esi address
+    push eax
+    push ebx
+    push ecx
+    push edx
+
+    mov eax, esi
+    sub eax, 0x100000
+    xor edx, edx
+    mov ecx, 4096
+    div ecx
+    cmp edx, 0
+    jnz .not_page_aligned
+
+    mov ecx, 8
+    div ecx
+
+    mov ecx, edx
+    mov edx, eax
+
+    mov al, byte [memmory_bit_map+edx]
+    mov bl, 0b10000000
+    shr bl, cl
+    not bl
+    and al, bl
+    mov byte [memmory_bit_map+edx], al
+
+    jmp .after
+.not_page_aligned:
+    mov esi, not_page_aligned_msg
+    call panic
+.after:
+    pop edx
+    pop ecx
+    pop ebx
+    pop eax
+    ret
+
+not_enough_memmory_msg: db "Not enough memmory. Buy more RAM lol",0
+not_page_aligned_msg: db "This address is not page aligned (aligned to 4kb)",0
+
 max_page_count: dd 0
+page_table_size: dd 0
+kernel_use_page_count: dd 0
+membit_table_size_bytes: dd 0
+initial_allocated_pages: dd 0
 
 pages_bitmap: times 131072 db 0

@@ -137,6 +137,67 @@ run_command:
 
     .test_command:
     ; call test
+
+    call alloc_page
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
+
+    push esi
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
+
+
+    call alloc_page
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
+
+    pop esi
+
+    mov ah, byte [global_color]
+    mov al, 'F'
+    call write_char
+    inc word [cursor]
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
+
+    call free_page
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
+
+    call alloc_page
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
+
+    call alloc_page
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
+
     call new_line
     jmp .after
 
@@ -228,6 +289,27 @@ cylinder_num: db 0
 sector_num:   db 0
 head_num:     db 0
 
+
+panic:
+    push esi
+    push eax
+
+    mov ah, 0x04
+    push esi
+    mov esi, panic_msg
+    call write_buffer
+
+    pop esi
+    call write_buffer
+
+    pop eax
+    pop esi
+
+    cli
+    hlt
+
+panic_msg: db "KERNEL PANIC: ", 0
+
 ; Include core and drivers!        
 %include "../eastereggs/valentine.asm"
 %include "core/initial_tools.asm"  
@@ -235,3 +317,5 @@ head_num:     db 0
 ;;;;;;;;;;;;;;;;;;
 ;;; /\ MAIN /\ ;;;
 ;;;;;;;;;;;;;;;;;;
+
+memmory_bit_map:
