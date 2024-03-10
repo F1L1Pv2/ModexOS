@@ -1,4 +1,4 @@
-bits 32
+use32
 
 ; dump_xbytes_little_endian:
 ;     ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

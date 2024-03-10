@@ -107,7 +107,6 @@ write_in_correct_size:
 
 
 memmory_dump:
-    [bits 32]
     push esi
     push ecx
     push edx
@@ -375,7 +374,7 @@ alloc_page:
 
         mov al, byte [memmory_bit_map+edx]
 
-        mov bl, 0b10000000
+        mov bl, 10000000b
         shr bl, cl
         
         and al, bl
@@ -392,7 +391,7 @@ alloc_page:
     
     ; allocating free page
     mov al, byte [memmory_bit_map+edx]
-    mov bl, 0b10000000
+    mov bl, 10000000b
     shr bl, cl
     or al, bl
     mov byte [memmory_bit_map+edx], al
@@ -451,7 +450,7 @@ free_page:
     mov edx, eax
 
     mov al, byte [memmory_bit_map+edx]
-    mov bl, 0b10000000
+    mov bl, 10000000b
     shr bl, cl
     not bl
     and al, bl

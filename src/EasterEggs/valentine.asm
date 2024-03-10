@@ -53,4 +53,4 @@ valentine:
     ; call new_line
     ret
 
-%include "../eastereggs/valentine_text.asm"
+include "../eastereggs/valentine_text.asm"

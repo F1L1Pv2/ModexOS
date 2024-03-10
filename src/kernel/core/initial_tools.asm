@@ -1,4 +1,4 @@
-bits 32
-%include "core/io.asm"
-%include "core/checking.asm"
-%include "core/memory.asm"
+use32
+include "src/kernel/core/io.asm"
+include "src/kernel/core/checking.asm"
+include "src/kernel/core/memory.asm"

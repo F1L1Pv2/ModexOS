@@ -1,4 +1,5 @@
 ASM=nasm
+FASM=fasm
 SRC_DIR=src
 BUILD_DIR=build
 
@@ -23,12 +24,12 @@ $(BUILD_DIR)/stage2.bin: always
 bootloader: $(BUILD_DIR)/bootloader.bin
 
 $(BUILD_DIR)/bootloader.bin: always
-	$(ASM) $(SRC_DIR)/bootloader/boot.asm -f bin -o $(BUILD_DIR)/bootloader.bin 
+	$(FASM) $(SRC_DIR)/bootloader/boot.asm $(BUILD_DIR)/bootloader.bin 
 
 kernel: $(BUILD_DIR)/kernel.bin
 
 $(BUILD_DIR)/kernel.bin: always
-	$(ASM) $(SRC_DIR)/kernel/main.asm -f bin -o $(BUILD_DIR)/kernel.bin -I $(SRC_DIR)/kernel -I $(SRC_DIR)/drivers
+	$(FASM) $(SRC_DIR)/kernel/main.asm $(BUILD_DIR)/kernel.bin
 
 always:
 	mkdir -p $(BUILD_DIR)

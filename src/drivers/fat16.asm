@@ -1,4 +1,4 @@
-bits 32
+use32
 
 fat_init:
     ; calculate total sectors

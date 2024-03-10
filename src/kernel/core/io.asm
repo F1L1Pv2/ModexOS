@@ -1,4 +1,8 @@
-bits 32
+use32
+
+; Screen buffer address!
+ScreenBuffer  equ 0xB8000
+read_content_len equ 80*25
 
 round_up:
     cmp edx, 0
@@ -184,10 +188,10 @@ print_byte:
     mov bl, al
 
     shr al, 4
-    and al, 0b00001111
+    and al, 00001111b
     call print_hex
     mov al, bl
-    and al, 0b00001111
+    and al, 00001111b
     call print_hex
 
     pop ebx
@@ -712,10 +716,6 @@ cursor: dd 0
 vga_history: times 10*80*25 db 0
 vga_history_len equ $ - vga_history
 
-; Screen buffer address!
-ScreenBuffer  equ 0xB8000
-
-read_content: times 80*25 db 0
-read_content_len equ ($-read_content)
+read_content: times read_content_len db 0
 db 0 ; padding
 read_cursor:              dw 0

@@ -1,4 +1,8 @@
 %include "initial_setup.asm"
+bits 32
+
+GLOBAL_COLOR equ 0x0a
+KERNEL_LOAD_OFFSET equ 0x100000
 
 bdb_oem                         equ 0x7c03 ; 8  bytes
 bdb_bytes_per_sector            equ 0x7c0b ; 2  bytes
@@ -24,7 +28,7 @@ ebr_system_id                   equ 0x7c36 ; 8  bytes
 buffer equ 0x7c00 + 512
 
 main:
-    [bits 32]
+    ; [bits 32]
 
     ;setup segment registers
     mov ax, 0x10
@@ -81,7 +85,6 @@ panic:
     hlt
 
 
-GLOBAL_COLOR equ 0x0a
 
 panic_msg: db "BOOTLOADER_PANIC: ", 0
 
@@ -90,7 +93,6 @@ file_kernel_bin: db 'KERNEL  BIN'
 kernel_not_found_msg: db "kernel.bin not found", 0
 kernel_size_in_bytes: dd 0
 
-KERNEL_LOAD_OFFSET equ 0x100000
 
 %include "boot_io.asm"
 %include "ata.asm"

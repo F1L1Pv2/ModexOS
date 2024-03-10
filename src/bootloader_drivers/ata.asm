@@ -1,4 +1,5 @@
 bits 32
+ATA_PRIMARY_DRIVE equ 0xE0
 
 ata_init:
 
@@ -93,7 +94,7 @@ ata_read_sectors:
     out dx, al
 
     mov dx, ATA_Status_Register
-    mov bl, 0b10000000
+    mov bl, 10000000b
     call wait_until_bit_clear
 
     in al, dx
@@ -130,7 +131,7 @@ ata_read_sectors:
     out dx, al
 
     mov dx, ATA_Status_Register
-    mov bl, 0b10000000
+    mov bl, 10000000b
     call wait_until_bit_clear
     
     mov dx, ATA_Data_Register
@@ -158,7 +159,7 @@ turn_on_lba_mode:
     mov dx, ATA_Drive_Head_Register
     in al, dx
 
-    or al, 0b01000000
+    or al, 01000000b
     out dx, al
     
     pop eax
@@ -172,7 +173,7 @@ turn_on_chs_mode:
     mov dx, ATA_Drive_Head_Register
     in al, dx
 
-    and al, 0b011011111
+    and al, 011011111b
     out dx, al
 
     pop eax
@@ -209,7 +210,7 @@ ata_identify:
     je .drive_dont_exist
 
     mov dx, ATA_Status_Register
-    mov bl, 0b10000000
+    mov bl, 10000000b
     call wait_until_bit_clear
 
     mov dx, ATA_LBAmid_Register
@@ -223,7 +224,7 @@ ata_identify:
     jnz .not_ata
 
     mov dx, ATA_Status_Register
-    mov bl, 0b00001000
+    mov bl, 00001000b
     call wait_until_bit_set
 
     mov ebx, 0
@@ -302,7 +303,6 @@ ATA_LBAhi_Register equ 0x1F5
 ATA_Drive_Head_Register equ 0x1F6
 ATA_Status_Register equ 0x1F7
 ATA_Command_Register equ 0x1F7
-ATA_PRIMARY_DRIVE equ 0xE0
 
 ATA_CONTROL_Alternate_status_register_Device_control_register equ 0x3F6
 ATA_Drive_Adress_register equ 0x3F7

@@ -1,11 +1,10 @@
 org 0x100000
-bits 32
+use32
 
 ;;;;;;;;;;;;;;;;;;
 ;;; \/ MAIN \/ ;;;
 ;;;;;;;;;;;;;;;;;;
 main: ; main loop
-    [bits 32]
     mov dword [memmory_table_ptr], eax
     add eax, 20*24
     mov dword [memmory_table_end_ptr], eax
@@ -138,67 +137,77 @@ run_command:
     .test_command:
     ; call test
 
-    call alloc_page
-    mov eax, esi
+    mov eax, .test_command
+    call binary_hexadecimal
+
+    call new_line
+
+    xor eax, eax
+    mov ax, ((.test_command shr 16) and 0xFFFF)
     call binary_hexadecimal
     call new_line
 
-    push esi
+    ; call alloc_page
+    ; mov eax, esi
+    ; call binary_hexadecimal
+    ; call new_line
 
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
+    ; push esi
+
+    ; mov esi, memmory_bit_map
+    ; mov edx, 8*8
+    ; call dump_xbits
+    ; call new_line
 
 
-    call alloc_page
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
+    ; call alloc_page
+    ; mov eax, esi
+    ; call binary_hexadecimal
+    ; call new_line
 
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
+    ; mov esi, memmory_bit_map
+    ; mov edx, 8*8
+    ; call dump_xbits
+    ; call new_line
 
-    pop esi
+    ; pop esi
 
-    mov ah, byte [global_color]
-    mov al, 'F'
-    call write_char
-    inc word [cursor]
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
+    ; mov ah, byte [global_color]
+    ; mov al, 'F'
+    ; call write_char
+    ; inc word [cursor]
+    ; mov eax, esi
+    ; call binary_hexadecimal
+    ; call new_line
 
-    call free_page
+    ; call free_page
 
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
+    ; mov esi, memmory_bit_map
+    ; mov edx, 8*8
+    ; call dump_xbits
+    ; call new_line
 
-    call alloc_page
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
+    ; call alloc_page
+    ; mov eax, esi
+    ; call binary_hexadecimal
+    ; call new_line
 
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
+    ; mov esi, memmory_bit_map
+    ; mov edx, 8*8
+    ; call dump_xbits
+    ; call new_line
 
-    call alloc_page
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
+    ; call alloc_page
+    ; mov eax, esi
+    ; call binary_hexadecimal
+    ; call new_line
 
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
+    ; mov esi, memmory_bit_map
+    ; mov edx, 8*8
+    ; call dump_xbits
+    ; call new_line
 
-    call new_line
+    ; call new_line
     jmp .after
 
     .bindec_command:
@@ -235,14 +244,11 @@ memmory_table_count: dd 0
 
 kernel_size_in_bytes: dd 0
 
-%substr compile_day __DATE__ 9,2
-%substr compile_month __DATE__ 6,2
-%substr compile_year __DATE__ 1,4
 
 global_color: db 0x0a
 welcome_msg:  db "Made by: F1L1P and Rilax",10,10
-              db "System MODEX prot-",compile_day,compile_month,compile_year," 32-bits",10
-              db "Copyright (C) 2020-",compile_year,"r.",10,10,0
+              db "System MODEX prot-10032024 32-bits",10
+              db "Copyright (C) 2020-2024r.",10,10,0
 terminal_msg: db "#> ",0
 
 
@@ -311,9 +317,9 @@ panic:
 panic_msg: db "KERNEL PANIC: ", 0
 
 ; Include core and drivers!        
-%include "../eastereggs/valentine.asm"
-%include "core/initial_tools.asm"  
-%include "ps2_keyboard.asm"      
+include "../eastereggs/valentine.asm"
+include "core/initial_tools.asm"  
+include "src/drivers/ps2_keyboard.asm"      
 ;;;;;;;;;;;;;;;;;;
 ;;; /\ MAIN /\ ;;;
 ;;;;;;;;;;;;;;;;;;

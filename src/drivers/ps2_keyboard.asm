@@ -1,4 +1,4 @@
-bits 32
+use32
 
 ps2_read_char:
     ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -116,7 +116,7 @@ ps2_wait_clear_input:
     mov cl, 3
     .loop:
     in al, 0x64
-    and al, 0b00000010
+    and al, 00000010b
     cmp al, 0
     jne .loop
     pop ecx
@@ -127,7 +127,7 @@ ps2_wait_set_input:
     mov cl, 3
     .loop:
     in al, 0x64
-    and al, 0b00000010
+    and al, 00000010b
     cmp al, 0
     je .loop
     pop ecx
@@ -138,7 +138,7 @@ ps2_wait_clear_output:
     mov cl, 3
     .loop:
     in al, 0x64
-    and al, 0b00000001
+    and al, 00000001b
     cmp al, 0
     jne .loop
     pop ecx
@@ -154,7 +154,7 @@ ps2_wait_set_output:
     mov cl, 3
     .loop:
     in al, 0x64
-    and al, 0b00000001
+    and al, 00000001b
     cmp al, 0
     je .loop
     pop ecx
