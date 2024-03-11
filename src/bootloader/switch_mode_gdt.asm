@@ -2,18 +2,20 @@ switching:
 cli
 in al, 0x92
 test al, 2
-jnz .after
+jnz (.after and 0xFFFF)
 or al, 2
 and al, 0xFE
 out 0x92, al
 .after:
-lgdt [g_GDTDesc]
+lgdt [(g_GDTDesc and 0xFFFF)]
 
 mov eax, cr0
 or eax, 1
+
 mov cr0, eax
 
-jmp dword 0x8:main
+
+jmp pword 0x8:main
 
 g_GDT:      ; NULL descriptor
             dq 0

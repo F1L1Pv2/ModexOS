@@ -1,5 +1,5 @@
-%include "initial_setup.asm"
-bits 32
+include "initial_setup.asm"
+use32
 
 GLOBAL_COLOR equ 0x0a
 KERNEL_LOAD_OFFSET equ 0x100000
@@ -94,8 +94,8 @@ kernel_not_found_msg: db "kernel.bin not found", 0
 kernel_size_in_bytes: dd 0
 
 
-%include "boot_io.asm"
-%include "ata.asm"
-%include "fat16.asm"
+include "boot_io.asm"
+include "src/bootloader_drivers/ata.asm"
+include "src/bootloader_drivers/fat16.asm"
 
-times (512*6)-($-$$) db 0xFE
+; times (512*6)-($-$$) db 0xFE

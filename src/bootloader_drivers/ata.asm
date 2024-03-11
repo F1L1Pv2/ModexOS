@@ -1,4 +1,15 @@
-bits 32
+ATA_Data_Register equ 0x1F0
+ATA_Error_Features_Register equ 0x1F1
+ATA_Sector_Count_Register equ 0x1F2
+ATA_LBAlo_Register equ 0x1F3
+ATA_LBAmid_Register equ 0x1F4
+ATA_LBAhi_Register equ 0x1F5
+ATA_Drive_Head_Register equ 0x1F6
+ATA_Status_Register equ 0x1F7
+ATA_Command_Register equ 0x1F7
+
+ATA_CONTROL_Alternate_status_register_Device_control_register equ 0x3F6
+ATA_Drive_Adress_register equ 0x3F7
 ATA_PRIMARY_DRIVE equ 0xE0
 
 ata_init:
@@ -292,20 +303,6 @@ ata_check_status:
     ret
 
 identify_table: times 256 dw 0
-
-
-ATA_Data_Register equ 0x1F0
-ATA_Error_Features_Register equ 0x1F1
-ATA_Sector_Count_Register equ 0x1F2
-ATA_LBAlo_Register equ 0x1F3
-ATA_LBAmid_Register equ 0x1F4
-ATA_LBAhi_Register equ 0x1F5
-ATA_Drive_Head_Register equ 0x1F6
-ATA_Status_Register equ 0x1F7
-ATA_Command_Register equ 0x1F7
-
-ATA_CONTROL_Alternate_status_register_Device_control_register equ 0x3F6
-ATA_Drive_Adress_register equ 0x3F7
 
 status_msg: db "ATA status passed", 10, 0
 identify_msg: db "ATA identify passed", 10, 0

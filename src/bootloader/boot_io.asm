@@ -1,4 +1,5 @@
 use32
+ScreenBuffer  equ 0xB8000
 
 ; dump_xbytes_little_endian:
 ;     ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -397,8 +398,6 @@ update_cursor:
     pop ebx
     pop ebx
     ret
-
-ScreenBuffer  equ 0xB8000
 
 cursor: dw 0
 

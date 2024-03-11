@@ -1,5 +1,3 @@
-bits 32
-
 fat_init:
     ; calculate total sectors
     xor eax, eax
