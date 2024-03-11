@@ -78,6 +78,10 @@ panic:
     pop esi
     call write_buffer
 
+    mov al, 32
+    call write_char
+    call update_cursor
+
     pop eax
     pop esi
 
@@ -86,11 +90,11 @@ panic:
 
 
 
-panic_msg: db "BOOTLOADER_PANIC: ", 0
+panic_msg: db "BOOT PANIC: ", 0
 
 stage2_msg: db "STAGE2 bootloader loading KERNEL",10,0
 file_kernel_bin: db 'KERNEL  BIN'
-kernel_not_found_msg: db "kernel.bin not found", 0
+kernel_not_found_msg: db "kernel.bin not found!",10, 0
 kernel_size_in_bytes: dd 0
 
 

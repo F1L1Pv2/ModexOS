@@ -304,7 +304,7 @@ ata_check_status:
 
 identify_table: times 256 dw 0
 
-status_msg: db "ATA status passed", 10, 0
-identify_msg: db "ATA identify passed", 10, 0
-no_drive_msg: db "No drive was found",10, 0
+status_msg: db "ATA status passed",      10, 0
+identify_msg: db "ATA identify passed",  10, 0
+no_drive_msg: db "No drive was found",   10, 0
 not_ata_msg: db "This device is not ata",10, 0

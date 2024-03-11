@@ -306,18 +306,23 @@ ping_command_msg:    db "pong!", 10, 0
 
 help_command_msg: 
     db 10
-    db "1. help    -  Help.",10
-    db "2. cls     -  Clear text.",10
-    db "3. ver     -  System version.",10
+    db "1. help    -  Help information.",10
+    db "2. cls     -  Clears the screen.",10
+    db "3. ver     -  Displays the system version.",10
     db "4. say     -  Comment.",10
     db "5. ping    -  pong!",10
-    db "6. motd    -  Welcome text.",10
+    db "6. motd    -  Displays welcome text.",10
     db "7. time    -  Displays the current time (HH:MM:SS / DD.MM.YYYY).",10
     db "8. cal     -  Calculator.",10
     db "9. memdup  -  Physical Memory map",10
+    ; db "10. list    -  Displays a list of files and subdirectories in a directory.",10
+    ; db "11. cd      -  Changes the current directory.",10
+    ; db "12. sd      -  Displays the name of the current directory.",10
+    ; db "13. dup     -  Copies one or more files to another location.",10
+    ; db "14. mov     -  Moves one or more files to another location.",10
     db 10,0
 
-invalid_command: db 'Invalid command!', 10 , 0
+invalid_command: db 'Invalid command!',10,10,0
 
 ; disk byte table!
 disk_num:     db 0
@@ -354,7 +359,8 @@ panic_msg: db "KERNEL PANIC: ", 0
 ; Include core and drivers!        
 include "../eastereggs/valentine.asm"
 include "core/initial_tools.asm"  
-include "src/drivers/ps2_keyboard.asm"      
+include "src/drivers/ps2_keyboard.asm"
+include "src/drivers/filesys.asm"
 ;;;;;;;;;;;;;;;;;;
 ;;; /\ MAIN /\ ;;;
 ;;;;;;;;;;;;;;;;;;
