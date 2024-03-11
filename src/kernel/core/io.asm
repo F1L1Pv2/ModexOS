@@ -711,6 +711,21 @@ binary_8:
     pop eax
     ret
 
+
+print_bcd:
+    push eax
+
+    push eax
+    shr al, 4
+    call binary_decimal
+    pop eax
+
+    and al, 1111b
+    call binary_decimal
+
+    pop eax
+    ret
+
 cursor: dd 0
 
 vga_history: times 10*80*25 db 0

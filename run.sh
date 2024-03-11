@@ -1,1 +1,1 @@
-qemu-system-x86_64 ./build/bios-htc.img
+qemu-system-x86_64 ./build/modex.img

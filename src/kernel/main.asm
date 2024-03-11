@@ -113,7 +113,8 @@ run_command:
     jmp .after
 
     .say_cmd:
-    ; call say
+    call read_buffer
+    call new_line
     jmp .after
 
     .ping_cmd:
@@ -130,84 +131,113 @@ run_command:
     jmp .after
 
     .time_cmd:
-    ; call date_time
+    call global_time
+    call new_line
     call new_line
     jmp .after
 
     .test_command:
     ; call test
 
-    mov eax, .test_command
-    call binary_hexadecimal
+    ; mov eax, .test_command
+    ; call binary_hexadecimal
 
+    ; call new_line
+
+    ; xor eax, eax
+    ; mov ax, ((.test_command shr 16) and 0xFFFF)
+    ; call binary_hexadecimal
+    ; call new_line
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
     call new_line
 
-    xor eax, eax
-    mov ax, ((.test_command shr 16) and 0xFFFF)
+    call alloc_page
+    mov eax, esi
     call binary_hexadecimal
     call new_line
 
-    ; call alloc_page
-    ; mov eax, esi
-    ; call binary_hexadecimal
-    ; call new_line
+    push esi
 
-    ; push esi
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
 
-    ; mov esi, memmory_bit_map
-    ; mov edx, 8*8
-    ; call dump_xbits
-    ; call new_line
+    call alloc_page
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
+
+    pop esi
+
+    mov ah, byte [global_color]
+    mov al, 'F'
+    call write_char
+    inc word [cursor]
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
+
+    call free_page
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
+
+    call alloc_page
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
+
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
+
+    call alloc_page
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
 
 
-    ; call alloc_page
-    ; mov eax, esi
-    ; call binary_hexadecimal
-    ; call new_line
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
 
-    ; mov esi, memmory_bit_map
-    ; mov edx, 8*8
-    ; call dump_xbits
-    ; call new_line
+    push esi
+    ;;;
 
-    ; pop esi
 
-    ; mov ah, byte [global_color]
-    ; mov al, 'F'
-    ; call write_char
-    ; inc word [cursor]
-    ; mov eax, esi
-    ; call binary_hexadecimal
-    ; call new_line
+    call alloc_page
+    mov eax, esi
+    call binary_hexadecimal
+    call new_line
 
-    ; call free_page
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
 
-    ; mov esi, memmory_bit_map
-    ; mov edx, 8*8
-    ; call dump_xbits
-    ; call new_line
+    pop esi
 
-    ; call alloc_page
-    ; mov eax, esi
-    ; call binary_hexadecimal
-    ; call new_line
+    call free_page
 
-    ; mov esi, memmory_bit_map
-    ; mov edx, 8*8
-    ; call dump_xbits
-    ; call new_line
+    mov esi, memmory_bit_map
+    mov edx, 8*8
+    call dump_xbits
+    call new_line
 
-    ; call alloc_page
-    ; mov eax, esi
-    ; call binary_hexadecimal
-    ; call new_line
-
-    ; mov esi, memmory_bit_map
-    ; mov edx, 8*8
-    ; call dump_xbits
-    ; call new_line
-
-    ; call new_line
+    call new_line
     jmp .after
 
     .bindec_command:
@@ -249,7 +279,8 @@ global_color: db 0x0a
 
 welcome_msg:  db "Made by: F1L1P and Rilax",10,10
  version_msg: db "System MODEX prot-11032024 32-bits",10
-              db "Copyright (C) 2020-2024r.",10,10,0
+              db "Copyright (C) 2020-2024r.",10,10
+              db 0
 
 terminal_msg: db "#> ",0
 
@@ -275,15 +306,15 @@ ping_command_msg:    db "pong!", 10, 0
 
 help_command_msg: 
     db 10
-    db "HELP       Help.",10
-    db "CLS        Clear text.",10
-    db "VER        System version.",10
-    db "SAY        Comment.",10
-    db "PING       pong!",10
-    db "MOTD       Welcome text.",10
-    db "TIME       Displays the current time (HH:MM:SS / DD.MM.YYYY).",10
-    db "CAL        Calculator.",10
-    db "MEMDUP     Physical Memory map",10
+    db "1. help    -  Help.",10
+    db "2. cls     -  Clear text.",10
+    db "3. ver     -  System version.",10
+    db "4. say     -  Comment.",10
+    db "5. ping    -  pong!",10
+    db "6. motd    -  Welcome text.",10
+    db "7. time    -  Displays the current time (HH:MM:SS / DD.MM.YYYY).",10
+    db "8. cal     -  Calculator.",10
+    db "9. memdup  -  Physical Memory map",10
     db 10,0
 
 invalid_command: db 'Invalid command!', 10 , 0
@@ -302,10 +333,15 @@ panic:
     mov ah, 0x04
     push esi
     mov esi, panic_msg
+    call new_line
     call write_buffer
 
     pop esi
     call write_buffer
+    call new_line
+    mov al, 32
+    call write_char
+    call update_cursor
 
     pop eax
     pop esi
