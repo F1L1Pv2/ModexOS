@@ -108,7 +108,7 @@ run_command:
     jmp .after
 
     .ver_cmd:
-    mov edi, version_command_msg
+    mov esi, version_msg
     call write_buffer
     jmp .after
 
@@ -246,45 +246,44 @@ kernel_size_in_bytes: dd 0
 
 
 global_color: db 0x0a
+
 welcome_msg:  db "Made by: F1L1P and Rilax",10,10
-              db "System MODEX prot-10032024 32-bits",10
+ version_msg: db "System MODEX prot-11032024 32-bits",10
               db "Copyright (C) 2020-2024r.",10,10,0
+
 terminal_msg: db "#> ",0
 
 
-clear_cmd:    db "clear", 0 ; Clear command
-cls_cmd:      db "cls",   0 ; Clear command
-help_command: db "help",  0 ; Help command
-ver_command:  db "ver",   0 ; Version command
-say_command:  db "say",   0 ; Say command
-ping_command: db "ping",  0 ; Ping command
-motd_command: db "motd",  0 ; Motd command
-time_command: db "time",  0 ; Time command
-cal_command:  db "cal",   0 ; Calculator command
-memdup_command:  db "memdup",   0 ; Calculator command
+clear_cmd:       db "clear",  0 ; Clear command
+cls_cmd:         db "cls",    0 ; Clear command
+help_command:    db "help",   0 ; Help command
+ver_command:     db "ver",    0 ; Version command
+say_command:     db "say",    0 ; Say command
+ping_command:    db "ping",   0 ; Ping command
+motd_command:    db "motd",   0 ; Motd command
+time_command:    db "time",   0 ; Time command
+cal_command:     db "cal",    0 ; Calculator command
+memdup_command:  db "memdup", 0 ; Calculator command
 
-ver2_command: db "ver2", 0
 test_command: db "test", 0
 bindec_command: db "bindec", 0
 fatal_error_command: db "death", 0 ; fatal error test
-restore_cmd_command: db "rescmd", 0 ; fatal error test
-mov_ax_cx_command: db "ax=cx", 0 ; nie dziala (narazie)
 
-love_command: db "love", 0 ; z
-ping_command_msg: db "pong!", 10, 0
-version_command_msg: db 0
+love_command:        db "love", 0 ; z
+ping_command_msg:    db "pong!", 10, 0
+; version_command_msg: db 0
 
 help_command_msg: 
     db 10
-    db "1. help   - Help.",10
-    db "2. cls    - Clear text.",10
-    db "3. ver    - System version.",10
-    db "4. say    - Comment.",10
-    db "5. ping   - pong!",10
-    db "6. motd   - Welcome text.",10
-    db "7. time   - Displays the current time (HH:MM:SS / DD.MM.YYYY).",10
-    db "8. cal    - Calculator.",10
-    db "9. memdup - Physical Memory map",10
+    db "HELP       Help.",10
+    db "CLS        Clear text.",10
+    db "VER        System version.",10
+    db "SAY        Comment.",10
+    db "PING       pong!",10
+    db "MOTD       Welcome text.",10
+    db "TIME       Displays the current time (HH:MM:SS / DD.MM.YYYY).",10
+    db "CAL        Calculator.",10
+    db "MEMDUP     Physical Memory map",10
     db 10,0
 
 invalid_command: db 'Invalid command!', 10 , 0
