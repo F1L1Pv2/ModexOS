@@ -56,23 +56,19 @@ ata_read_sectors:
     push esi
     push edi
     push edx
-    push eax
 
 .loop:
     cmp edx, 0
     je .after
     call ata_read_sector
 
-    xor eax, eax
-    mov ax, word [bdb_bytes_per_sector]
-    add esi, eax
+    add esi, 512
     inc edi
     dec edx
 
     jmp .loop
 .after:
 
-    pop eax
     pop edx
     pop edi
     pop esi
@@ -88,7 +84,7 @@ ata_read_sector:
     push edx
     push edi
     push esi
-    
+
     mov edx, 1
 
     push edx
