@@ -257,7 +257,7 @@ run_command:
 
     .love_command:
     ; call cls
-    call valentine
+    ; call valentine
     call new_line
     jmp .after
 .after:
@@ -357,7 +357,7 @@ panic:
 panic_msg: db "KERNEL PANIC: ", 0
 
 ; Include core and drivers!        
-include "../eastereggs/valentine.asm"
+; include "../eastereggs/valentine.asm"
 include "core/initial_tools.asm"  
 include "src/drivers/ps2_keyboard.asm"
 include "src/drivers/filesys.asm"

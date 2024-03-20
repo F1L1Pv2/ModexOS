@@ -1,3 +1,4 @@
+use32
 
 memmory_between_msg: db " | ",0
 
@@ -312,7 +313,6 @@ setup_physical_alloc:
     call round_up
     mov dword [membit_table_size_bytes], eax
 
-
     ;calculate how much kernel uses pages
     mov eax, dword [kernel_size_in_bytes]
     mov edx, 0
@@ -333,6 +333,17 @@ setup_physical_alloc:
     ;allocate initial pages
     xor edx, edx
     mov eax, dword [initial_allocated_pages]
+    cmp eax, 8
+    jge .more_than_byte
+
+.less_than_byte:
+    mov al, dl
+    call fill_bits
+    mov [memmory_bit_map], al
+    jmp .exit
+
+
+.more_than_byte:
     mov ecx, 8
     div ecx
     push edx
@@ -347,7 +358,6 @@ setup_physical_alloc:
     mov eax, edx
     call fill_bits
     mov byte [esi], al
-
 .exit:
     pop ecx
     pop edx
@@ -475,5 +485,3 @@ page_table_size: dd 0
 kernel_use_page_count: dd 0
 membit_table_size_bytes: dd 0
 initial_allocated_pages: dd 0
-
-pages_bitmap: times 131072 db 0

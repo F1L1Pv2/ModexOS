@@ -728,9 +728,6 @@ print_bcd:
 
 cursor: dd 0
 
-vga_history: times 10*80*25 db 0
-vga_history_len equ $ - vga_history
-
 read_content: times read_content_len db 0
 db 0 ; padding
 read_cursor:              dw 0

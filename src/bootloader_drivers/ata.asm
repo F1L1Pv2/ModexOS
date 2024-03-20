@@ -131,6 +131,8 @@ ata_read_sectors:
     cmp ebx, 256
     jl .loop
 
+    call wait_400ns
+
     dec ecx
     cmp ecx, 0
     jne .call_next_sector
@@ -152,7 +154,6 @@ ata_read_sectors:
 
 
 .after_loop:
-    call wait_400ns
 
     pop esi
     pop edi

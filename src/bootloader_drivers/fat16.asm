@@ -63,16 +63,34 @@ fat_load_and_update_cluster:
     call claculate_first_sector_of_cluster
 
     mov edi, eax
-    xor edx, edx
-    mov dl, byte [bdb_sectors_per_cluster]
+    mov cl, byte [bdb_sectors_per_cluster]
+    mov dl, 1
+
+    ;; TODO: for some reason ata doesnt work good if it needs to load more than 1 sector so for now im manually loading one sector at a time
+
+.load_loop:
+    cmp cl, 0
+    je .after
+
     call ata_read_sectors
-    xor eax, eax
-    mov al, byte [bdb_sectors_per_cluster]
-    xor ecx, ecx
-    mov cx, word [bdb_bytes_per_sector]
-    xor edx, edx
-    mul ecx
-    add esi, eax
+
+    dec cl
+    inc edi
+    add esi, 512
+    jmp .load_loop
+.after:
+
+    ; mov edi, eax
+    ; xor edx, edx
+    ; mov dl, byte [bdb_sectors_per_cluster]
+    ; call ata_read_sectors
+    ; xor eax, eax
+    ; mov al, byte [bdb_sectors_per_cluster]
+    ; xor ecx, ecx
+    ; mov cx, word [bdb_bytes_per_sector]
+    ; xor edx, edx
+    ; mul ecx
+    ; add esi, eax
 
     pop ecx
     pop edx
@@ -138,6 +156,7 @@ fat_load_file_root_dir:
     cmp bx, word [bdb_root_entry_count]
     jl .search_kernel_loop
 
+    ; clearing zero flag for failure
     mov eax, 1
     cmp eax, 0
     jmp .after
@@ -146,6 +165,7 @@ fat_load_file_root_dir:
     ; call panic
 
 .kernel_found:
+
     mov esi, edi
     mov eax, dword [esi+28]
     mov dword [kernel_size_in_bytes], eax
@@ -161,15 +181,13 @@ fat_load_file_root_dir:
     call ata_read_sectors
 
     mov esi, dword [fat_imm_load_offset]
-    ; mov esi, KERNEL_LOAD_OFFSET
-    ; mov edx, 0
 .fat_load_loop:
-    inc edx
     call fat_load_and_update_cluster
     call fat_get_next_cluster
     cmp eax, 0xFFF8
     jl .fat_load_loop
 
+    ; setting zero flag for success
     mov eax, 0
     cmp eax, 0
 .after:
