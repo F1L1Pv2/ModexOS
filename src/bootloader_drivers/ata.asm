@@ -52,15 +52,49 @@ ata_read_sectors:
     ; esi buffer offset
     ; edi LBA (28 bit)
     ; edx sector count
+
+    push esi
+    push edi
+    push edx
+    push eax
+
+.loop:
+    cmp edx, 0
+    je .after
+    call ata_read_sector
+
+    xor eax, eax
+    mov ax, word [bdb_bytes_per_sector]
+    add esi, eax
+    inc edi
+    dec edx
+
+    jmp .loop
+.after:
+
+    pop eax
+    pop edx
+    pop edi
+    pop esi
+    ret
+
+ata_read_sector:
+    ; esi buffer offset
+    ; edi LBA (28 bit)
+    ; edx sector count
     push eax
     push ebx
     push ecx
     push edx
     push edi
     push esi
+    
+    mov edx, 1
 
     push edx
     push esi
+
+    ;; TODO: find out why more sectors break
     
 
     mov eax, ATA_PRIMARY_DRIVE

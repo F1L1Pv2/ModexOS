@@ -1,4 +1,16 @@
-bits 32
+ATA_Data_Register equ 0x1F0
+ATA_Error_Features_Register equ 0x1F1
+ATA_Sector_Count_Register equ 0x1F2
+ATA_LBAlo_Register equ 0x1F3
+ATA_LBAmid_Register equ 0x1F4
+ATA_LBAhi_Register equ 0x1F5
+ATA_Drive_Head_Register equ 0x1F6
+ATA_Status_Register equ 0x1F7
+ATA_Command_Register equ 0x1F7
+
+ATA_CONTROL_Alternate_status_register_Device_control_register equ 0x3F6
+ATA_Drive_Adress_register equ 0x3F7
+ATA_PRIMARY_DRIVE equ 0xE0
 
 ata_init:
 
@@ -40,15 +52,49 @@ ata_read_sectors:
     ; esi buffer offset
     ; edi LBA (28 bit)
     ; edx sector count
+
+    push esi
+    push edi
+    push edx
+    push eax
+
+.loop:
+    cmp edx, 0
+    je .after
+    call ata_read_sector
+
+    xor eax, eax
+    mov ax, word [bdb_bytes_per_sector]
+    add esi, eax
+    inc edi
+    dec edx
+
+    jmp .loop
+.after:
+
+    pop eax
+    pop edx
+    pop edi
+    pop esi
+    ret
+
+ata_read_sector:
+    ; esi buffer offset
+    ; edi LBA (28 bit)
+    ; edx sector count
     push eax
     push ebx
     push ecx
     push edx
     push edi
     push esi
+    
+    mov edx, 1
 
     push edx
     push esi
+
+    ;; TODO: find out why more sectors break
     
 
     mov eax, ATA_PRIMARY_DRIVE
@@ -93,7 +139,7 @@ ata_read_sectors:
     out dx, al
 
     mov dx, ATA_Status_Register
-    mov bl, 0b10000000
+    mov bl, 10000000b
     call wait_until_bit_clear
 
     in al, dx
@@ -119,6 +165,8 @@ ata_read_sectors:
     cmp ebx, 256
     jl .loop
 
+    call wait_400ns
+
     dec ecx
     cmp ecx, 0
     jne .call_next_sector
@@ -130,7 +178,7 @@ ata_read_sectors:
     out dx, al
 
     mov dx, ATA_Status_Register
-    mov bl, 0b10000000
+    mov bl, 10000000b
     call wait_until_bit_clear
     
     mov dx, ATA_Data_Register
@@ -140,7 +188,6 @@ ata_read_sectors:
 
 
 .after_loop:
-    call wait_400ns
 
     pop esi
     pop edi
@@ -158,7 +205,7 @@ turn_on_lba_mode:
     mov dx, ATA_Drive_Head_Register
     in al, dx
 
-    or al, 0b01000000
+    or al, 01000000b
     out dx, al
     
     pop eax
@@ -172,7 +219,7 @@ turn_on_chs_mode:
     mov dx, ATA_Drive_Head_Register
     in al, dx
 
-    and al, 0b011011111
+    and al, 011011111b
     out dx, al
 
     pop eax
@@ -209,7 +256,7 @@ ata_identify:
     je .drive_dont_exist
 
     mov dx, ATA_Status_Register
-    mov bl, 0b10000000
+    mov bl, 10000000b
     call wait_until_bit_clear
 
     mov dx, ATA_LBAmid_Register
@@ -223,7 +270,7 @@ ata_identify:
     jnz .not_ata
 
     mov dx, ATA_Status_Register
-    mov bl, 0b00001000
+    mov bl, 00001000b
     call wait_until_bit_set
 
     mov ebx, 0
@@ -292,22 +339,7 @@ ata_check_status:
 
 identify_table: times 256 dw 0
 
-
-ATA_Data_Register equ 0x1F0
-ATA_Error_Features_Register equ 0x1F1
-ATA_Sector_Count_Register equ 0x1F2
-ATA_LBAlo_Register equ 0x1F3
-ATA_LBAmid_Register equ 0x1F4
-ATA_LBAhi_Register equ 0x1F5
-ATA_Drive_Head_Register equ 0x1F6
-ATA_Status_Register equ 0x1F7
-ATA_Command_Register equ 0x1F7
-ATA_PRIMARY_DRIVE equ 0xE0
-
-ATA_CONTROL_Alternate_status_register_Device_control_register equ 0x3F6
-ATA_Drive_Adress_register equ 0x3F7
-
-status_msg: db "ATA status passed", 10, 0
-identify_msg: db "ATA identify passed", 10, 0
-no_drive_msg: db "No drive was found",10, 0
+status_msg: db "ATA status passed",      10, 0
+identify_msg: db "ATA identify passed",  10, 0
+no_drive_msg: db "No drive was found",   10, 0
 not_ata_msg: db "This device is not ata",10, 0
