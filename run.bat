@@ -1,2 +1,2 @@
 @echo off
-qemu-system-x86_64 .\build\modex.img
+qemu-system-x86_64 -m 1g .\build\modex.img

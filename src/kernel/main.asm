@@ -1,10 +1,20 @@
-org 0x100000
+org 0x100000 + 0xC0000000
 use32
+
+mov cx, 0x20
+mov ds, cx
+mov ss, cx
+mov es, cx
+
+mov esp, 0x7c00 + 0xC0000000
+
+jmp 0x18:main
 
 ;;;;;;;;;;;;;;;;;;
 ;;; \/ MAIN \/ ;;;
 ;;;;;;;;;;;;;;;;;;
 main: ; main loop
+    add eax, 0xC0000000
     mov dword [memmory_table_ptr], eax
     add eax, 20*24
     mov dword [memmory_table_end_ptr], eax
@@ -13,6 +23,7 @@ main: ; main loop
 
     call calculate_ram
     call setup_physical_alloc
+    call virtual_memory_init ;yuupii now we are inside virtual memory!!!!
 
     mov ah, [global_color]
     call clear_screen
@@ -137,105 +148,13 @@ run_command:
     jmp .after
 
     .test_command:
-    ; call test
 
-    ; mov eax, .test_command
-    ; call binary_hexadecimal
-
-    ; call new_line
-
-    ; xor eax, eax
-    ; mov ax, ((.test_command shr 16) and 0xFFFF)
-    ; call binary_hexadecimal
-    ; call new_line
-
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
-
-    call alloc_page
-    mov eax, esi
+    mov eax, cr3
     call binary_hexadecimal
     call new_line
 
-    push esi
-
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
-
-    call alloc_page
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
-
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
-
-    pop esi
-
-    mov ah, byte [global_color]
-    mov al, 'F'
-    call write_char
-    inc word [cursor]
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
-
-    call free_page
-
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
-
-    call alloc_page
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
-
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
-
-    call alloc_page
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
-
-
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
-
-    push esi
-    ;;;
-
-
-    call alloc_page
-    mov eax, esi
-    call binary_hexadecimal
-    call new_line
-
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
-
-    pop esi
-
-    call free_page
-
-    mov esi, memmory_bit_map
-    mov edx, 8*8
-    call dump_xbits
-    call new_line
+    mov eax, cr0
+    call binary_32
 
     call new_line
     jmp .after
@@ -257,7 +176,7 @@ run_command:
 
     .love_command:
     ; call cls
-    ; call valentine
+    call valentine
     call new_line
     jmp .after
 .after:
@@ -357,7 +276,7 @@ panic:
 panic_msg: db "KERNEL PANIC: ", 0
 
 ; Include core and drivers!        
-; include "../eastereggs/valentine.asm"
+include "../eastereggs/valentine.asm"
 include "core/initial_tools.asm"  
 include "src/drivers/ps2_keyboard.asm"
 include "src/drivers/filesys.asm"

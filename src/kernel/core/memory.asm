@@ -423,7 +423,7 @@ alloc_page:
 
     mov ecx, 4096
     mul ecx
-    add eax, 0x100000
+    add eax, 0x100000 + 0xC0000000
     mov esi, eax
 
     jmp .after
@@ -446,7 +446,7 @@ free_page:
     push edx
 
     mov eax, esi
-    sub eax, 0x100000
+    sub eax, 0x100000 + 0xC0000000
     xor edx, edx
     mov ecx, 4096
     div ecx

@@ -1,7 +1,7 @@
 use32
 
 ; Screen buffer address!
-ScreenBuffer  equ 0xB8000
+ScreenBuffer  equ 0xB8000 + 0xC0000000
 read_content_len equ 80*25
 
 round_up:
@@ -707,6 +707,58 @@ binary_8:
 
     call binary_8_pure
 
+    pop ebx
+    pop eax
+    ret
+
+binary_32:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; funkcja print binary (32-bits) ;;
+    ;;         EAX to wejsce          ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    push eax
+    push ebx
+
+    push eax
+    mov ah, [global_color]
+    mov al, '0'
+    call write_char
+    inc word [cursor]
+    mov al, 'b'
+    call write_char
+    inc word [cursor]
+    pop eax
+
+    mov ebx, 10000000000000000000000000000000b
+.loop:
+    test ebx, ebx
+    jz .exit
+
+    push eax
+    and eax, ebx
+    shr ebx, 1
+
+    test eax, eax
+    jnz .true
+
+    mov ah, [global_color]
+    mov al, '0'
+    call write_char
+    inc word [cursor]
+    pop eax
+
+    jmp .loop
+
+.true:
+    mov ah, [global_color]
+    mov al, '1'
+    call write_char
+    inc word [cursor]
+    pop eax
+
+    jmp .loop
+
+.exit:
     pop ebx
     pop eax
     ret

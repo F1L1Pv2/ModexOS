@@ -7,4 +7,5 @@ use32
 include "io.asm"
 include "checking.asm"
 include "memory.asm"
+include "virtual_memory.asm"
 include "tools.asm"
