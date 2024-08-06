@@ -1,7 +1,19 @@
 # ModexOS
 32 bit protected mode operating system
 
-todo:
+# building:
+```make```
+
+## required:
+- make
+- dosfstools
+- fasm
+- qemu
+- mtools
+- bochs (optional)
+
+
+### todo:
 - [x] Interrupts
 - [ ] PIC
 - [ ] PCI

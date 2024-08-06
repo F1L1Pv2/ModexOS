@@ -36,7 +36,7 @@ write_in_correct_size:
     mov ecx, 1024
 
     cmp eax, 1024
-    jge .kilo_bytes
+    jae .kilo_bytes
 
 .bytes:
     call binary_decimal
@@ -53,7 +53,7 @@ write_in_correct_size:
     div ecx
 
     cmp eax, 1024
-    jge .mega_bytes
+    jae .mega_bytes
 
 
     call binary_decimal
@@ -70,30 +70,10 @@ write_in_correct_size:
 .mega_bytes:
     mov edx, 0
     div ecx
-
-    cmp eax, 1024
-    jge .giga_bytes
-
-
-
+    
     call binary_decimal
     mov ah, [global_color]
     mov al, 'M'
-    call write_char
-    inc word [cursor]
-    mov al, 'B'
-    call write_char
-    inc word [cursor]
-    
-    jmp .after
-
-.giga_bytes:
-    mov edx, 0
-    div ecx
-
-    call binary_decimal
-    mov ah, [global_color]
-    mov al, 'G'
     call write_char
     inc word [cursor]
     mov al, 'B'
