@@ -199,3 +199,47 @@ args:
 .ebx:    dw 0
 .ecx:    dw 0
 .edx:    dw 0
+
+
+
+debug:
+    push eax
+    push esi
+    
+    mov ah, [global_color]
+    mov esi, .msg
+    call write_buffer
+    
+    pop esi
+    pop eax
+
+    ret
+.msg: db "Debug!",10,0
+
+debug1:
+    push eax
+    push esi
+    
+    mov ah, [global_color]
+    mov esi, .msg
+    call write_buffer
+    
+    pop esi
+    pop eax
+
+    ret
+.msg: db "Debug1!",10,0
+
+debug2:
+    push eax
+    push esi
+    
+    mov ah, [global_color]
+    mov esi, .msg
+    call write_buffer
+    
+    pop esi
+    pop eax
+
+    ret
+.msg: db "Debug2!",10,0

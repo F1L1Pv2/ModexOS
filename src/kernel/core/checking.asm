@@ -26,59 +26,51 @@ cmp_str:
     pop eax
     ret
 
-; cmp_cmd:
-;     ; first cmd address in esi
-;     ; second cmd address in edi
-;     push eax
-;     push esi
-;     push edi
 
-; .loop:
-;     mov al, byte [esi]
-;     mov ah, byte [edi]
+if_ascii_number:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; funkcja sprawdzania znakow innych niz cyfra w tablicy ;;
+    ;;       ESI to informacja o poczatkowym adresie         ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;     cmp al, 32
-;     jz .args
+    push esi
+    push ebx
+    push edx
 
-;     cmp al, ah
-;     jne .exit
+    mov ebx, esi
 
-;     cmp al, 0
-;     je .exit
+    xor esi, esi
 
-;     inc esi
-;     inc edi
+    mov dl, byte [ebx] 
+    cmp dl, 45
+    jne .loop
 
-;     jmp .loop
+    inc ebx
 
-; .args:
-;     mov edi, dword [args_buffer_offset]
-;     inc esi
+.loop:
+    mov dl, byte [ebx+esi]
+    inc esi
 
-;     mov al, byte [esi]
+    test dl, dl
+    jz .valid
 
-;     cmp al, 0
-;     jz .exit
+    cmp dl, 48
+    jl .exit ; Invalid number
+    cmp dl, 57
+    jg .exit ; Invalid number
 
-;     cmp al, 32
-;     jz .args
+    jmp .loop
 
-;     cmp al, 10
-;     jz .args
-; .args_loop:
-;     mov al, byte [esi]
-;     mov byte [edi], al
+.valid:
+    xor esi, esi
 
-;     cmp al, 0
-;     jz .exit
+.exit:
+    ; cmp dl, 45
+    ; je .valid ; valid number
 
-;     inc esi
-;     inc edi
+    test esi, esi
 
-;     jmp .args_loop
-
-; .exit:
-;     pop edi
-;     pop esi
-;     pop eax
-;     ret
+    pop edx
+    pop ebx
+    pop esi
+    ret

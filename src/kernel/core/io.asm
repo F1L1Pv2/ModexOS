@@ -749,49 +749,6 @@ binary_8:
     ret
 
 
-debug:
-    push eax
-    push esi
-    
-    mov ah, [global_color]
-    mov esi, .msg
-    call write_buffer
-    
-    pop esi
-    pop eax
-
-    ret
-.msg: db "Debug!",10,0
-
-debug1:
-    push eax
-    push esi
-    
-    mov ah, [global_color]
-    mov esi, .msg
-    call write_buffer
-    
-    pop esi
-    pop eax
-
-    ret
-.msg: db "Debug1!",10,0
-
-debug2:
-    push eax
-    push esi
-    
-    mov ah, [global_color]
-    mov esi, .msg
-    call write_buffer
-    
-    pop esi
-    pop eax
-
-    ret
-.msg: db "Debug2!",10,0
-
-
 binary_32:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; funkcja print binary (32-bits) ;;
@@ -876,54 +833,6 @@ error:
     pop eax
     ret
 .msg: db "Error!", 0
-
-if_ascii_number:
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; funkcja sprawdzania znakow innych niz cyfra w tablicy ;;
-    ;;       ESI to informacja o poczatkowym adresie         ;;
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    push esi
-    push ebx
-    push edx
-
-    mov ebx, esi
-
-    xor esi, esi
-
-    mov dl, byte [ebx] 
-    cmp dl, 45
-    jne .loop
-
-    inc ebx
-
-.loop:
-    mov dl, byte [ebx+esi]
-    inc esi
-
-    test dl, dl
-    jz .valid
-
-    cmp dl, 48
-    jl .exit ; Invalid number
-    cmp dl, 57
-    jg .exit ; Invalid number
-
-    jmp .loop
-
-.valid:
-    xor esi, esi
-
-.exit:
-    ; cmp dl, 45
-    ; je .valid ; valid number
-
-    test esi, esi
-
-    pop edx
-    pop ebx
-    pop esi
-    ret
 
 s_decimal_binary:
     push esi
