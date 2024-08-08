@@ -76,7 +76,7 @@ kernel_size_in_bytes: dd 0
 
 
 include "boot_io.asm"
-include "src/bootloader_drivers/ata.asm"
-include "src/bootloader_drivers/fat16.asm"
+include "drivers/ata.asm"
+include "drivers/fat16.asm"
 
 ; times (512*6)-($-$$) db 0xFE

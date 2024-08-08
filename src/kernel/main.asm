@@ -21,6 +21,9 @@ main: ; main loop
     mov dword [memmory_table_count], ebx
     mov dword [kernel_size_in_bytes], edx
 
+    ; call ata_init
+    ; call fat_init
+
     call calculate_ram
     call setup_physical_alloc
     call virtual_memory_init ;yuupii now we are inside virtual memory!!!!
@@ -149,12 +152,17 @@ run_command:
 
     .test_command:
 
-    mov eax, cr3
-    call binary_hexadecimal
-    call new_line
+    ; mov esi, bananoso
+    ; call args
 
-    mov eax, cr0
-    call binary_32
+    ; mov ah, [global_color]
+    ; mov esi, bananoso
+    ; call write_buffer
+    ; call new_line
+    ; mov esi, bananoso
+    ; mov edx, 150
+    ; ; call dump_xbytes_big_endian
+    ; call dump_xbytes_little_endian
 
     call new_line
     jmp .after
@@ -165,7 +173,7 @@ run_command:
     jmp .after
 
     .cal_command:
-    ; call calculator
+    call calculator
     call new_line
     jmp .after
 
@@ -197,7 +205,7 @@ kernel_size_in_bytes: dd 0
 global_color: db 0x0a
 
 welcome_msg:  db "Made by: F1L1P and Rilax",10,10
- version_msg: db "System MODEX prot-11032024 32-bits",10
+ version_msg: db "System MODEX prot-08082024 32-bits",10
               db "Copyright (C) 2020-2024r.",10,10
               db 0
 
@@ -234,11 +242,11 @@ help_command_msg:
     db "7. time    -  Displays the current time (HH:MM:SS / DD.MM.YYYY).",10
     db "8. cal     -  Calculator.",10
     db "9. memdup  -  Physical Memory map",10
-    ; db "10. list    -  Displays a list of files and subdirectories in a directory.",10
-    ; db "11. cd      -  Changes the current directory.",10
-    ; db "12. sd      -  Displays the name of the current directory.",10
-    ; db "13. dup     -  Copies one or more files to another location.",10
-    ; db "14. mov     -  Moves one or more files to another location.",10
+    ; db "10. ls    -  Displays a list of files and subdirectories in a directory.",10
+    ; db "11. cd    -  Changes the current directory.",10
+    ; db "12. sd    -  Displays the name of the current directory.",10
+    ; db "13. dup   -  Copies one or more files to another location.",10
+    ; db "14. mov   -  Moves one or more files to another location.",10
     db 10,0
 
 invalid_command: db 'Invalid command!',10,10,0
@@ -272,14 +280,16 @@ panic:
 
     cli
     hlt
-
 panic_msg: db "KERNEL PANIC: ", 0
 
 ; Include core and drivers!        
 include "../eastereggs/valentine.asm"
 include "core/initial_tools.asm"  
-include "src/drivers/ps2_keyboard.asm"
-include "src/drivers/filesys.asm"
+include "drivers/ps2_keyboard.asm"
+; include "drivers/fat16.asm"
+; include "drivers/ata.asm"
+
+include "drivers/calculator.asm"
 ;;;;;;;;;;;;;;;;;;
 ;;; /\ MAIN /\ ;;;
 ;;;;;;;;;;;;;;;;;;

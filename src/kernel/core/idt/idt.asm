@@ -1,0 +1,1 @@
+lidt [idt_descriptor]

@@ -63,6 +63,7 @@ dump_xbytes_little_endian:
     mov al, byte [esi]
 
     call print_byte
+    call space
 
     inc esi
 
@@ -91,6 +92,7 @@ dump_xbytes_big_endian:
     mov al, byte [esi]
 
     call print_byte
+    call space
 
     dec esi
 
@@ -105,10 +107,33 @@ dump_xbytes_big_endian:
 
 bindec_wrote: dd 0
 
+s_binary_decimal:
+    push eax
+
+    cmp eax, 0
+    jnl .after
+
+    dec eax
+    not eax
+
+    push eax
+    mov ah, [global_color]
+    mov al, '-'
+    call write_char
+    inc word [cursor]
+    pop eax
+
+.after:
+    call binary_decimal
+
+    pop eax
+
+    ret
+
 binary_decimal:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; funkcja binary to decimal (16-bits) ;;
-    ;;           AX to wejsce              ;;
+    ;; funkcja binary to decimal (32-bits) ;;
+    ;;          EAX to wejsce              ;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     push edx
     push ecx
@@ -483,6 +508,18 @@ read_move_back_while_not_x:
     pop eax
     ret
 
+space:
+    push eax
+    
+    mov ah, [global_color]
+    mov al, ' '
+    call write_char
+    inc word [cursor]
+
+    pop eax
+    
+    ret
+
 update_cursor:
     ;;F1L1P;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;;  funkcja służąca do zaktualizowania ;;
@@ -711,6 +748,50 @@ binary_8:
     pop eax
     ret
 
+
+debug:
+    push eax
+    push esi
+    
+    mov ah, [global_color]
+    mov esi, .msg
+    call write_buffer
+    
+    pop esi
+    pop eax
+
+    ret
+.msg: db "Debug!",10,0
+
+debug1:
+    push eax
+    push esi
+    
+    mov ah, [global_color]
+    mov esi, .msg
+    call write_buffer
+    
+    pop esi
+    pop eax
+
+    ret
+.msg: db "Debug1!",10,0
+
+debug2:
+    push eax
+    push esi
+    
+    mov ah, [global_color]
+    mov esi, .msg
+    call write_buffer
+    
+    pop esi
+    pop eax
+
+    ret
+.msg: db "Debug2!",10,0
+
+
 binary_32:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; funkcja print binary (32-bits) ;;
@@ -778,8 +859,192 @@ print_bcd:
     pop eax
     ret
 
-cursor: dd 0
+error: 
+    push eax
+    push ebx
+
+    ; call new_line
+    mov ah, [global_color]
+    mov esi, .msg
+    call write_buffer
+    call new_line
+
+    inc ebx
+    test ebx, ebx
+
+    pop ebx
+    pop eax
+    ret
+.msg: db "Error!", 0
+
+if_ascii_number:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; funkcja sprawdzania znakow innych niz cyfra w tablicy ;;
+    ;;       ESI to informacja o poczatkowym adresie         ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    push esi
+    push ebx
+    push edx
+
+    mov ebx, esi
+
+    xor esi, esi
+
+    mov dl, byte [ebx] 
+    cmp dl, 45
+    jne .loop
+
+    inc ebx
+
+.loop:
+    mov dl, byte [ebx+esi]
+    inc esi
+
+    test dl, dl
+    jz .valid
+
+    cmp dl, 48
+    jl .exit ; Invalid number
+    cmp dl, 57
+    jg .exit ; Invalid number
+
+    jmp .loop
+
+.valid:
+    xor esi, esi
+
+.exit:
+    ; cmp dl, 45
+    ; je .valid ; valid number
+
+    test esi, esi
+
+    pop edx
+    pop ebx
+    pop esi
+    ret
+
+s_decimal_binary:
+    push esi
+    push edx
+
+    mov dl, byte [esi]
+
+    cmp dl, 45
+    jne .after
+
+    inc esi
+
+    call decimal_binary
+
+    dec eax
+    not eax
+
+    jmp .exit
+.after:
+
+    call decimal_binary
+
+.exit:
+    pop edx
+    pop esi
+    ret
+
+decimal_binary:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;   funkcja decimal to binary (32-bits)   ;;
+    ;; ESI to informacja o poczatkowym adresie ;;
+    ;;              EAX to output              ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    call flip_bytes_table
+
+    push edx
+    push ecx
+    push ebx
+
+    xor edx, edx
+    xor ecx, ecx
+    xor ebx, ebx
+
+.loop:
+    mov dl, byte [esi+ebx]
+    push edx
+    inc ebx
+
+    test dl, dl
+    jnz .loop
+
+    pop eax
+    dec ebx
+
+.loop2:
+    dec ebx
+    mov eax, 10
+    call math_power
+    pop edx
+
+    sub edx, 48
+    mul edx
+
+    add ecx, eax
+
+    test ebx, ebx
+    jnz .loop2
+
+    mov eax, ecx
+
+    pop ebx
+    pop ecx
+    pop edx
+
+    call flip_bytes_table
+
+    ret
+
+flip_bytes_table:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;       funkcja ktora obraca bytes w tablicy        ;;
+    ;;      ESI to informacja o poczatkowym adresie      ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    push esi
+    push edx
+    push ebx
+
+    mov ebx, esi
+
+    mov esi, 0
+    push esi ; 0 ktore mowi gdzie konczy sie bytes table
+
+.loop:
+    mov dl, byte [ebx+esi]
+    push edx
+    inc esi
+
+    test dl, dl
+    jnz .loop
+
+    pop esi ; usuwanie 0 z poczatku tablicy
+    xor esi, esi
+
+.loop2:
+    pop edx
+    mov byte [ebx+esi], dl
+    inc esi
+
+    test dl, dl
+    jnz .loop2
+
+    pop ebx
+    pop edx
+    pop esi
+
+    ret
+
+cursor:                              dd 0
 
 read_content: times read_content_len db 0
-db 0 ; padding
-read_cursor:              dw 0
+                                     db 0 ; padding
+read_cursor:                         dw 0
